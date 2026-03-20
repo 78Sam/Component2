@@ -1,0 +1,21 @@
+{
+    "name": "sammccormack/component2",
+    "description": "ComponentPHP webframework 2",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "ComponentPHP\\": "Core/",
+			"App\\": "App/"
+        },
+		"files": [
+			"Core/Utility/Functions.php"
+		]
+    },
+    "authors": [
+        {
+            "name": "Sam",
+            "email": "samvjsmccormack@gmail.com"
+        }
+    ],
+    "require": {}
+}
