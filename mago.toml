@@ -11,7 +11,8 @@ excludes = []
 [formatter]
 print-width = 120
 tab-width = 4
-use-tabs = false
+use-tabs = true
+control-brace-style = "next-line"
 
 [linter]
 integrations = []
@@ -24,14 +25,22 @@ halstead = { effort-threshold = 7000 }
 [analyzer]
 plugins = []
 find-unused-definitions = true
-find-unused-expressions = false
-analyze-dead-code = false
+find-unused-expressions = true
+analyze-dead-code = true
 memoize-properties = true
-allow-possibly-undefined-array-keys = true
-check-throws = false
-check-missing-override = false
-find-unused-parameters = false
-strict-list-index-checks = false
-no-boolean-literal-comparison = false
-check-missing-type-hints = false
+allow-possibly-undefined-array-keys = false
+check-throws = true
+check-missing-override = true
+find-unused-parameters = true
+strict-list-index-checks = true
+no-boolean-literal-comparison = true
+check-missing-type-hints = true
 register-super-globals = true
+
+[guard]
+
+[[guard.structural.rules]]
+on = "App\\Controllers\\**"
+target = "class"
+must-be-final = true
+reason = "Controllers should be final bozo"

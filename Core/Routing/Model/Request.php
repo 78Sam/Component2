@@ -23,6 +23,9 @@ readonly class Request
 		return $this->queryParameters[$name] ?? $default;
 	}
 
+	/**
+	 * @return array<string, string>
+	 */
 	private function parseQueryParameters(): array
 	{
 		if ($this->query === null)
@@ -31,7 +34,8 @@ readonly class Request
 		}
 
 		$queryParameters = [];
-		foreach (explode('&', $this->query) as $queryParameter) {
+		foreach (explode('&', $this->query) as $queryParameter)
+		{
 			$keyValuePair = explode('=', $queryParameter);
 			$queryParameters[$keyValuePair[0]] = $keyValuePair[1];
 		}
