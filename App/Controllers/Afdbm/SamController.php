@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Controllers\Afdbm;
 
 use ComponentPHP\Routing\AbstractController;
-use ComponentPHP\Routing\Model\Route;
+use ComponentPHP\Routing\Attributes\Route;
 
 final class SamController extends AbstractController
 {
-	#[Route('/home/sam', name: 'app_samhome')]
+	#[Route('/sam', 'app_sam')]
 	public function test()
 	{
 		dump("Hello");

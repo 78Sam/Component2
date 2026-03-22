@@ -1,5 +1,5 @@
 <?php
 
-$x = 'help.php';
+$x = 'asdasd?asdhasd?dhs';
 
-echo substr($x, 0, -3);
+print_r(explode('?', $x, limit: 2));

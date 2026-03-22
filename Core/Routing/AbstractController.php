@@ -4,6 +4,15 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Routing;
 
-class AbstractController
+abstract class AbstractController
 {
+	final public function __construct(
+		protected readonly Router $router,
+	) {
+	}
+
+	public function pageNotFound(): void
+	{
+		echo 'Page not found';
+	}
 }

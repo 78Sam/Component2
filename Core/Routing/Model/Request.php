@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Routing\Model;
 
+// TODO: Add $_POST parameters to the request object
 readonly class Request
 {
 	private array $queryParameters;
 
 	public function __construct(
-		public ?string $scheme = null,
-		public ?string $host = null,
-		public ?string $path = null,
+		public string $scheme,
+		public string $host,
+		public string $route,
 		public ?string $query = null,
 		public ?int $port = null,
 	) {

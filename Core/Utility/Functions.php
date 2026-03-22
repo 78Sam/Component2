@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-function dump(mixed $value): void
+function dump(mixed ...$values): void
 {
 	/** @var list<array> $backtrace */
 	$backtrace = debug_backtrace(limit: 1);
@@ -18,6 +18,10 @@ function dump(mixed $value): void
 
 	echo '<pre>';
 	echo "{$file}::{$line}\n\n";
-	print_r($value);
+	foreach ($values as $value)
+	{
+		print_r($value);
+		echo '<br>';
+	}
 	echo "\n\n</pre>";
 }
