@@ -11,6 +11,7 @@ abstract class AbstractController
 	) {
 	}
 
+	// TODO: This needs a lot of work, just made it to test some stuff
 	protected function render(string $component)
 	{
 		$fullPath = COMPONENT_ROOT_DIR . '/App/Components/' . trim($component, '/\\');
