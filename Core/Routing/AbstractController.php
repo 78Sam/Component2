@@ -11,8 +11,9 @@ abstract class AbstractController
 	) {
 	}
 
-	public function pageNotFound(): void
+	protected function render(string $component)
 	{
-		echo 'Page not found';
+		$fullPath = COMPONENT_ROOT_DIR . '/App/Components/' . trim($component, '/\\');
+		echo file_get_contents($fullPath);
 	}
 }

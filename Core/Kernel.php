@@ -12,6 +12,8 @@ class Kernel
 
 	public function __construct()
 	{
+		define('COMPONENT_ROOT_DIR', str_replace(DIRECTORY_SEPARATOR, '/', dirname(__DIR__)));
+
 		try
 		{
 			$this->router = new Router();
