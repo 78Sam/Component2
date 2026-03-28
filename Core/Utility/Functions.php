@@ -25,3 +25,26 @@ function dump(mixed ...$values): void
 	}
 	echo "\n\n</pre>";
 }
+
+
+function pathToClass(string $path)
+{
+	$class = $path
+		|> (fn($val) => str_replace(DIRECTORY_SEPARATOR, '/', $val))
+		|> (fn($val) => substr($val, 0, -4))
+		|> (fn($val) => str_replace(COMPONENT_ROOT_DIR . '/', '', $val))
+		|> (fn($val) => str_replace('/', '\\', $val))
+	;
+
+	foreach (NAMESPACE_ALIASES as $folder => $namespace)
+	{
+		if (str_starts_with($class, $folder))
+		{
+			error_log("replace: {$class}");
+			$class = $namespace . substr($class, strlen($folder));
+			error_log("After: {$class}");
+		}
+	}
+
+	return $class;
+}

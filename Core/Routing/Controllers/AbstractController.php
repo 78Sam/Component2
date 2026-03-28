@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace ComponentPHP\Routing;
+namespace ComponentPHP\Routing\Controllers;
+
+use ComponentPHP\Routing\Router;
 
 abstract class AbstractController
 {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-use ComponentPHP\Routing\AbstractController;
+use ComponentPHP\Routing\Controllers\AbstractController;
 use ComponentPHP\Routing\Attributes\Route;
 
 class HomeController extends AbstractController
@@ -40,5 +40,11 @@ class HomeController extends AbstractController
 	public function testUrl(): void
 	{
 		echo $this->router->getUrlFor('app_sam');
+	}
+
+	#[Route(route: '/uma', name: 'app_uma')]
+	public function uma(): void
+	{
+		echo 'I love uma <3';
 	}
 }

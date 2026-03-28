@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Routing\Model;
 
-use ComponentPHP\Routing\AbstractController;
+use ComponentPHP\Routing\Controllers\AbstractController;
 
 readonly class SiteMapEntry
 {
@@ -17,5 +17,10 @@ readonly class SiteMapEntry
 		public string $class,
 		public string $method,
 	) {
+	}
+
+	public static function __set_state($properties)
+	{
+		return new SiteMapEntry(...$properties);
 	}
 }

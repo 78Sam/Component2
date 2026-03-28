@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ComponentPHP\Routing;
 
 use ComponentPHP\Routing\Attributes\Route;
+use ComponentPHP\Routing\Controllers\AbstractController;
 use ComponentPHP\Routing\Exceptions\HostNotFoundException;
 use ComponentPHP\Routing\Exceptions\PageNotFoundException;
 use ComponentPHP\Routing\Exceptions\RouteAlreadyExistsException;
@@ -15,6 +16,12 @@ use ComponentPHP\Routing\Model\SiteMapEntry;
 
 class Router
 {
+	/** @var string[] CONTROLLER_DIRECTORIES */
+	public const array CONTROLLER_DIRECTORIES = [
+		COMPONENT_ROOT_DIR . '/App/Controllers',
+		COMPONENT_ROOT_DIR . '/Core/Routing/Controllers',
+	];
+
 	private Request $coreRequest;
 
 	/** @var array{routes: SiteMapEntry[], names: SiteMapEntry[]} $siteMap */
@@ -30,7 +37,19 @@ class Router
 		$this->siteMap = ['routes' => [], 'names' => []];
 
 		$this->parseCoreRequest();
-		$this->drawSiteMap();
+
+		if (IS_DEV)
+		{
+			foreach (self::CONTROLLER_DIRECTORIES as $directory)
+			{
+				$this->drawSiteMap($directory);
+			}
+			$this->writeSiteMap();
+		}
+		else
+		{
+			$this->readSiteMap();
+		}
 	}
 
 	/**
@@ -102,11 +121,9 @@ class Router
 	/**
 	 * @throws RouteAlreadyExistsException
 	 */
-	private function drawSiteMap(): void
+	private function drawSiteMap(string $searchSpace): void
 	{
-		$rootDir = dirname(dirname(__DIR__));
-		$controllersDirectoryFilePath = "{$rootDir}/App/Controllers";
-		$iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($controllersDirectoryFilePath));
+		$iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($searchSpace));
 
 		/** @var \SplFileInfo $file */
 		foreach ($iterator as $file)
@@ -122,8 +139,7 @@ class Router
 				continue;
 			}
 
-			$classname = substr(str_replace("{$rootDir}/", '', $fullPath), 0, -4);
-			$classname = str_replace(DIRECTORY_SEPARATOR, '\\', $classname);
+			$classname = pathToClass($fullPath);
 			if (!class_exists($classname))
 			{
 				continue;
@@ -179,5 +195,25 @@ class Router
 				}
 			}
 		}
+	}
+
+	public function readSiteMap(): void
+	{
+		$_siteMapEntries = ['routes' => [], 'names' => []];
+		$siteMapCacheFilePath = COMPONENT_ROOT_DIR . '/Core/Cache/Routing/SiteMapCache.php';
+		if (!file_exists($siteMapCacheFilePath))
+		{
+			return;
+		}
+
+		require_once $siteMapCacheFilePath;
+
+		$this->siteMap = $_siteMapEntries;
+	}
+
+	public function writeSiteMap(): void
+	{
+		$outputString = "<?php\n\ndeclare(strict_types=1);\n\n\$_siteMapEntries = " . var_export($this->siteMap, return: true) . ';';
+		file_put_contents(COMPONENT_ROOT_DIR . '/Core/Cache/Routing/SiteMapCache.php', $outputString);
 	}
 }

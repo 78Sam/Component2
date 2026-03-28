@@ -4,7 +4,7 @@ php-version = "8.5.0"
 
 [source]
 workspace = "."
-paths = ["App/", "Core/"]
+paths = ["App/", "ComponentPHP/"]
 includes = ["vendor"]
 excludes = []
 
