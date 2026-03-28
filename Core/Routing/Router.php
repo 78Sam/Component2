@@ -7,11 +7,13 @@ namespace ComponentPHP\Routing;
 use ComponentPHP\Routing\Attributes\Route;
 use ComponentPHP\Routing\Controllers\AbstractController;
 use ComponentPHP\Routing\Exceptions\HostNotFoundException;
+use ComponentPHP\Routing\Exceptions\InvalidResponseException;
 use ComponentPHP\Routing\Exceptions\PageNotFoundException;
 use ComponentPHP\Routing\Exceptions\RouteAlreadyExistsException;
 use ComponentPHP\Routing\Exceptions\UriNotFoundException;
 use ComponentPHP\Routing\Exceptions\UrlParseException;
 use ComponentPHP\Routing\Model\Request;
+use ComponentPHP\Routing\Model\Response;
 use ComponentPHP\Routing\Model\SiteMapEntry;
 
 class Router
@@ -53,8 +55,7 @@ class Router
 	}
 
 	/**
-	 * @throws 
-	 * @return void
+	 * @throws PageNotFoundException
 	 */
 	public function handleRequest(?Request $request = null): void
 	{
@@ -63,7 +64,14 @@ class Router
 		{
 			$siteMapEntry = $this->siteMap['routes'][$request->route];
 			$abstractController = new ($siteMapEntry->class)(router: $this);
-			$abstractController->{$siteMapEntry->method}();
+
+			$response = $abstractController->{$siteMapEntry->method}();
+			if (!$response instanceof Response)
+			{
+				throw new InvalidResponseException('Controllers should return ' . Response::class);
+			}
+
+			$this->handleResponse($response);
 
 			return;
 		}
@@ -84,6 +92,12 @@ class Router
 		$route = $this->siteMap['names'][$name]->route;
 
 		return "{$scheme}://{$host}{$port}{$route}";
+	}
+
+	private function handleResponse(Response $response): void
+	{
+		http_response_code($response->responseCode);
+		echo $response->content;
 	}
 
 	/**

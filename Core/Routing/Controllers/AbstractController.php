@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Routing\Controllers;
 
+use ComponentPHP\Routing\Model\Response;
 use ComponentPHP\Routing\Router;
 
 abstract class AbstractController
@@ -13,10 +14,10 @@ abstract class AbstractController
 	) {
 	}
 
-	// TODO: This needs a lot of work, just made it to test some stuff
-	protected function render(string $component)
+	protected function render(string $component): Response
 	{
 		$fullPath = COMPONENT_ROOT_DIR . '/App/Components/' . trim($component, '/\\');
-		echo file_get_contents($fullPath);
+
+		return new Response(file_get_contents($fullPath));
 	}
 }
