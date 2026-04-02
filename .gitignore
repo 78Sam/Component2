@@ -1,2 +1,4 @@
 vendor
 **/.DS_STORE
+Core/Cache/**/Lines/*
+!Core/Cache/**/Lines/.gitkeep

@@ -19,6 +19,13 @@ readonly class Request
 		$this->queryParameters = $this->parseQueryParameters();
 	}
 
+	public static function __set_state($properties)
+	{
+		unset($properties['queryParameters']);
+
+		return new Request(...$properties);
+	}
+
 	public function get(string $name, mixed $default = null): mixed
 	{
 		return $this->queryParameters[$name] ?? $default;

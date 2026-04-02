@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Routing;
 
+use ComponentPHP\Cache\CacheLine;
+use ComponentPHP\Cache\Routing\RoutingCache;
 use ComponentPHP\Routing\Attributes\Route;
 use ComponentPHP\Routing\Controllers\AbstractController;
 use ComponentPHP\Routing\Exceptions\HostNotFoundException;
@@ -24,9 +26,14 @@ class Router
 		COMPONENT_ROOT_DIR . '/Core/Routing/Controllers',
 	];
 
+	/** @var Request[] $previousRequests */
+	public array $previousRequests = [];
+
 	private Request $coreRequest;
 
-	/** @var array{routes: SiteMapEntry[], names: SiteMapEntry[]} $siteMap */
+	private RoutingCache $cache;
+
+	/** @var array{routes: array<string, SiteMapEntry>, names: array<string, SiteMapEntry>} $siteMap */
 	private array $siteMap;
 
 	/**
@@ -36,21 +43,26 @@ class Router
 	 */
 	public function __construct()
 	{
+		$this->cache = new RoutingCache();
 		$this->siteMap = ['routes' => [], 'names' => []];
 
 		$this->parseCoreRequest();
 
 		if (IS_DEV)
 		{
-			foreach (self::CONTROLLER_DIRECTORIES as $directory)
-			{
-				$this->drawSiteMap($directory);
-			}
-			$this->writeSiteMap();
+			$this->drawFullSiteMap();
 		}
 		else
 		{
-			$this->readSiteMap();
+			$cacheValue = $this->cache->readCache(CacheLine::SiteMap);
+			if ($cacheValue === null)
+			{
+				$this->drawFullSiteMap();
+			}
+			else
+			{
+				$this->siteMap = $cacheValue;
+			}
 		}
 	}
 
@@ -76,7 +88,7 @@ class Router
 			return;
 		}
 
-		throw new PageNotFoundException($request->route, "Could not find the page");
+		throw new PageNotFoundException($request->route, "Could not find the page for '{$request->route}'");
 	}
 
 	public function getUrlFor(string $name): ?string
@@ -92,12 +104,6 @@ class Router
 		$route = $this->siteMap['names'][$name]->route;
 
 		return "{$scheme}://{$host}{$port}{$route}";
-	}
-
-	private function handleResponse(Response $response): void
-	{
-		http_response_code($response->responseCode);
-		echo $response->content;
 	}
 
 	/**
@@ -130,6 +136,31 @@ class Router
 			route: $route,
 			query: $routeAndQuery[1] ?? null,
 		);
+	}
+
+	private function handleResponse(Response $response): void
+	{
+		http_response_code($response->responseCode);
+		echo $response->content;
+
+		/** @var ?Request[] $cachedRequests */
+		$cachedRequests = $this->cache->readCache(CacheLine::Requests);
+		if ($cachedRequests)
+		{
+			$this->previousRequests = $cachedRequests;
+		}
+
+		$this->previousRequests = array_merge([$this->coreRequest], $this->previousRequests);
+		$this->cache->writeCache(CacheLine::Requests, $this->previousRequests);
+	}
+
+	private function drawFullSiteMap(): void
+	{
+		foreach (self::CONTROLLER_DIRECTORIES as $directory)
+		{
+			$this->drawSiteMap($directory);
+		}
+		$this->cache->writeCache(CacheLine::SiteMap, $this->siteMap);
 	}
 
 	/**
@@ -209,25 +240,5 @@ class Router
 				}
 			}
 		}
-	}
-
-	public function readSiteMap(): void
-	{
-		$_siteMapEntries = ['routes' => [], 'names' => []];
-		$siteMapCacheFilePath = COMPONENT_ROOT_DIR . '/Core/Cache/Routing/SiteMapCache.php';
-		if (!file_exists($siteMapCacheFilePath))
-		{
-			return;
-		}
-
-		require_once $siteMapCacheFilePath;
-
-		$this->siteMap = $_siteMapEntries;
-	}
-
-	public function writeSiteMap(): void
-	{
-		$outputString = "<?php\n\ndeclare(strict_types=1);\n\n\$_siteMapEntries = " . var_export($this->siteMap, return: true) . ';';
-		file_put_contents(COMPONENT_ROOT_DIR . '/Core/Cache/Routing/SiteMapCache.php', $outputString);
 	}
 }
