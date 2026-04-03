@@ -6,7 +6,7 @@ namespace ComponentPHP\Routing\Exceptions;
 
 use Throwable;
 
-class RouteAlreadyExistsException extends \Exception
+class RouteAlreadyExistsException extends RoutingException
 {
 	public readonly string $route;
 	public readonly string $name;

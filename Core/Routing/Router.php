@@ -8,11 +8,10 @@ use ComponentPHP\Cache\CacheLine;
 use ComponentPHP\Cache\Routing\RoutingCache;
 use ComponentPHP\Routing\Attributes\Route;
 use ComponentPHP\Routing\Controllers\AbstractController;
-use ComponentPHP\Routing\Exceptions\HostNotFoundException;
 use ComponentPHP\Routing\Exceptions\InvalidResponseException;
 use ComponentPHP\Routing\Exceptions\PageNotFoundException;
 use ComponentPHP\Routing\Exceptions\RouteAlreadyExistsException;
-use ComponentPHP\Routing\Exceptions\UriNotFoundException;
+use ComponentPHP\Routing\Exceptions\RoutingException;
 use ComponentPHP\Routing\Exceptions\UrlParseException;
 use ComponentPHP\Routing\Model\Request;
 use ComponentPHP\Routing\Model\Response;
@@ -29,44 +28,81 @@ class Router
 	/** @var Request[] $previousRequests */
 	public array $previousRequests = [];
 
-	private Request $coreRequest;
-
 	private RoutingCache $cache;
 
-	/** @var array{routes: array<string, SiteMapEntry>, names: array<string, SiteMapEntry>} $siteMap */
-	private array $siteMap;
+	private ?Request $coreRequest = null;
 
-	/**
-	 * @throws UrlParseException
-	 * @throws HostNotFoundException
-	 * @throws UriNotFoundException
-	 */
+	/** @var array{routes: array<string, SiteMapEntry>, names: array<string, SiteMapEntry>} $siteMap */
+	private array $siteMap = ['routes' => [], 'names' => []];
+
 	public function __construct()
 	{
 		$this->cache = new RoutingCache();
-		$this->siteMap = ['routes' => [], 'names' => []];
+	}
 
-		$this->parseCoreRequest();
+	/**
+	 * @throws RoutingException
+	 */
+	public function init()
+	{
+		$this->coreRequest = $this->parseCoreRequest();
 
 		if (IS_DEV)
+		{
+			$this->drawFullSiteMap();
+
+			return;
+		}
+
+		// If we are running in production, read the sitemap from cache
+
+		$cacheValue = $this->cache->readCache(CacheLine::SiteMap);
+		if ($cacheValue === null)
 		{
 			$this->drawFullSiteMap();
 		}
 		else
 		{
-			$cacheValue = $this->cache->readCache(CacheLine::SiteMap);
-			if ($cacheValue === null)
-			{
-				$this->drawFullSiteMap();
-			}
-			else
-			{
-				$this->siteMap = $cacheValue;
-			}
+			$this->siteMap = $cacheValue;
 		}
 	}
 
 	/**
+	 * Create the request object from server parameters
+	 *
+	 * @throws UrlParseException
+	 */
+	private function parseCoreRequest(): Request
+	{
+		$scheme = ($_SERVER['HTTPS'] ?? 'off') === 'on' ? 'https' : 'http';
+
+		$host = $_SERVER['HTTP_HOST'] ?? null;
+		if ($host === null)
+		{
+			throw new UrlParseException('$_SERVER["HTTP_HOST"] is null', code: 500);
+		}
+
+		$uri = $_SERVER['REQUEST_URI'] ?? null;
+		if ($uri === null)
+		{
+			throw new UrlParseException('$_SERVER["REQUEST_URI"] is null', code: 500);
+		}
+
+		$routeAndQuery = explode('?', $uri, limit: 2);
+		$route = '/' . trim($routeAndQuery[0], '/');
+
+		return new Request(
+			scheme: $scheme,
+			host: $host,
+			route: $route,
+			query: $routeAndQuery[1] ?? null,
+		);
+	}
+
+	/**
+	 * Take the core request and call the corresponding controller method if there is one
+	 * 
+	 * @throws InvalidResponseException
 	 * @throws PageNotFoundException
 	 */
 	public function handleRequest(?Request $request = null): void
@@ -88,54 +124,7 @@ class Router
 			return;
 		}
 
-		throw new PageNotFoundException($request->route, "Could not find the page for '{$request->route}'");
-	}
-
-	public function getUrlFor(string $name): ?string
-	{
-		if (!\array_key_exists($name, $this->siteMap['names']))
-		{
-			return null;
-		}
-
-		$scheme = $this->coreRequest->scheme;
-		$host = $this->coreRequest->host;
-		$port = $this->coreRequest->port === null ? '' : ":{$this->coreRequest->port}";
-		$route = $this->siteMap['names'][$name]->route;
-
-		return "{$scheme}://{$host}{$port}{$route}";
-	}
-
-	/**
-	 * @throws UrlParseException
-	 * @throws HostNotFoundException
-	 * @throws UriNotFoundException
-	 */
-	private function parseCoreRequest(): void
-	{
-		$scheme = ($_SERVER['HTTPS'] ?? 'off') === 'on' ? 'https' : 'http';
-
-		$host = $_SERVER['HTTP_HOST'] ?? null;
-		if ($host === null)
-		{
-			throw new HostNotFoundException("Unable to parse host");
-		}
-
-		$uri = $_SERVER['REQUEST_URI'] ?? null;
-		if ($uri === null)
-		{
-			throw new UriNotFoundException("Unable to parse uri");
-		}
-
-		$routeAndQuery = explode('?', $uri, limit: 2);
-		$route = '/' . trim($routeAndQuery[0], '/');
-
-		$this->coreRequest = new Request(
-			scheme: $scheme,
-			host: $host,
-			route: $route,
-			query: $routeAndQuery[1] ?? null,
-		);
+		throw new PageNotFoundException($request->route, 'Page not found', code: 404);
 	}
 
 	private function handleResponse(Response $response): void
@@ -153,6 +142,8 @@ class Router
 		$this->previousRequests = array_merge([$this->coreRequest], $this->previousRequests);
 		$this->cache->writeCache(CacheLine::Requests, $this->previousRequests);
 	}
+
+	// ! Util
 
 	private function drawFullSiteMap(): void
 	{
@@ -189,7 +180,7 @@ class Router
 			{
 				continue;
 			}
-			
+
 			try
 			{
 				$reflectionClass = new \ReflectionClass($classname);

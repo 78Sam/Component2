@@ -4,6 +4,5 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Routing\Exceptions;
 
-class UriNotFoundException extends \Exception
-{
-}
+class RoutingException extends \Exception
+{}

@@ -26,24 +26,10 @@ class HomeController extends AbstractController
 	public function validate(): Response
 	{
 		$username = $_POST['username'];
-		if (\strlen($username) > 5)
-		{
-			$response = "Your username '{$username}' is long enough :)";
-		}
-		else
-		{
-			$response = "Your username '{$username}' is NOT long enough :(";
-		}
+		$response = "Your username '{$username}' ";
+		$response .= \strlen($username) > 5 ? "is long enough :)" : "is NOT long enough :(";
 
 		return new Response($response);
-	}
-
-	#[Route(route: '/test/url', name: 'app_testUrl')]
-	public function testUrl(): Response
-	{
-		$url = $this->router->getUrlFor('app_sam');
-
-		return new Response($url);
 	}
 
 	#[Route(route: '/uma', name: 'app_uma')]
