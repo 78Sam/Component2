@@ -12,9 +12,12 @@ class Kernel
 
 	public function __construct()
 	{
+        $mode = CPHP_IS_DEV ? 'DEV' : 'PROD';
+        cphpLog("Starting Kernel in {$mode} mode");
 		try
 		{
 			$this->router = new Router();
+            $this->router->init();
 			$this->router->handleRequest();
 		}
 		catch (\Exception $exception)
@@ -25,6 +28,7 @@ class Kernel
 
 	private function except(\Exception $e): never
 	{
+        cphpLog($e->getMessage(), 'error');
 		dump($e);
 
 		exit();

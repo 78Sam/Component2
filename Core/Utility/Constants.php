@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Utility;
 
-define('COMPONENT_ROOT_DIR', str_replace(DIRECTORY_SEPARATOR, '/', dirname(__DIR__, levels: 2)));
+define('CPHP_ROOT_DIR', str_replace(DIRECTORY_SEPARATOR, '/', dirname(__DIR__, levels: 2)));
+define('CPHP_LOG_DIR', CPHP_ROOT_DIR . '/Log');
 
-define('NAMESPACE_ALIASES', [
+define('CPHP_NAMESPACE_ALIASES', [
 	'Core' => 'ComponentPHP',
 	// 'App' => 'App',
 ]);
 
-define('IS_DEV', true);
+define('CPHP_IS_DEV', true);
+
+define('CPHP_TIMEZONE', 'BST');

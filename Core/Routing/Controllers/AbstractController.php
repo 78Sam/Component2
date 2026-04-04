@@ -16,7 +16,7 @@ abstract class AbstractController
 
 	protected function render(string $component): Response
 	{
-		$fullPath = COMPONENT_ROOT_DIR . '/App/Components/' . trim($component, '/\\');
+		$fullPath = CPHP_ROOT_DIR . '/App/Components/' . trim($component, '/\\');
 
 		return new Response(file_get_contents($fullPath));
 	}

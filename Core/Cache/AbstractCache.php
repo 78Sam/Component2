@@ -13,11 +13,11 @@ abstract class AbstractCache
 		file_put_contents($cacheLine->path($this->getDir()), self::CACHE_LINE_HEADER . var_export($data, return: true) . ";\n");
 	}
 
-	public function readCache(CacheLine $cacheLine): mixed
+	public function readCache(CacheLine $cacheLine, mixed $default = null): mixed
 	{
 		include_once $cacheLine->path($this->getDir());
 
-		return $_cacheLineData ?? null;
+		return $_cacheLineData ?? $default;
 	}
 
 	abstract protected function getDir(): string;

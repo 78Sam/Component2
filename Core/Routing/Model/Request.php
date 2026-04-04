@@ -13,18 +13,37 @@ readonly class Request
 		public string $scheme,
 		public string $host,
 		public string $route,
+        public int $time,
 		public ?string $query = null,
 		public ?int $port = null,
 	) {
 		$this->queryParameters = $this->parseQueryParameters();
 	}
 
-	public static function __set_state($properties)
+	public static function __set_state($properties): Request
 	{
 		unset($properties['queryParameters']);
 
 		return new Request(...$properties);
 	}
+
+    public function __toString(): string
+    {
+        $url = "<scheme: {$this->scheme}>://<host: {$this->host}>";
+        if ($this->port)
+        {
+            $url .= "<port: {$this->port}>";
+        }
+
+        $url .= "<route: {$this->route}>";
+
+        if ($this->query)
+        {
+            $url .= "<query: {$this->query}>";
+        }
+
+        return "Request: {$url}";
+    }
 
 	public function get(string $name, mixed $default = null): mixed
 	{

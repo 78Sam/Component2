@@ -2,19 +2,34 @@
 
 declare(strict_types=1);
 
-function dump(mixed ...$values): void
+
+/**
+ * @return array{file: string, line: int}
+ */
+function getDebugBacktrace(): array
 {
-	/** @var list<array> $backtrace */
-	$backtrace = debug_backtrace(limit: 1);
-	if (count($backtrace) === 0)
+    /** @var array[] $backtrace */
+	$backtrace = debug_backtrace(limit: 2);
+	if (count($backtrace) < 2)
 	{
-		return;
+		return [
+            'file' => 'unknown_file',
+            'line' => -1,
+        ];
 	}
 
-	/** @var array<string, string> $frame */
-	$frame = $backtrace[0];
-	$file = $frame['file'] ?? 'unknown_file';
-	$line = $frame['line'] ?? 'unknown_line';
+    return [
+        'file' => $backtrace[1]['file'] ?? 'unknown_file',
+        'line' => $backtrace[1]['line'] ?? -1,
+    ];
+}
+
+
+function dump(mixed ...$values): void
+{
+    $debugFrame = getDebugBacktrace();
+    $file = $debugFrame['file'];
+    $line = $debugFrame['line'];
 
 	echo '<pre>';
 	echo "{$file}::{$line}\n\n";
@@ -27,22 +42,44 @@ function dump(mixed ...$values): void
 }
 
 
+function cphpLog(string $message, string $level = 'info', string $channel = 'Core'): void
+{
+    $debugFrame = getDebugBacktrace();
+    $file = $debugFrame['file'];
+    $line = $debugFrame['line'];
+
+    $datetime = new \DateTime(timezone: new \DateTimeZone(CPHP_TIMEZONE));
+    $datetimeFormatted = $datetime->format('d-m-Y H:i:s');
+
+    $dir = CPHP_LOG_DIR . "/{$channel}";
+    if (!file_exists($dir))
+    {
+        mkdir($dir, recursive: true);
+    }
+
+    $log = "{$datetimeFormatted} {$file}::{$line} | [{$level}] {$message}";
+
+    // error_log($log);
+    error_log("{$log}\n", message_type: 3, destination: "{$dir}/log.log");
+}
+
+
 function pathToClass(string $path)
 {
 	$class = $path
 		|> (fn($val) => str_replace(DIRECTORY_SEPARATOR, '/', $val))
 		|> (fn($val) => substr($val, 0, -4))
-		|> (fn($val) => str_replace(COMPONENT_ROOT_DIR . '/', '', $val))
+		|> (fn($val) => str_replace(CPHP_ROOT_DIR . '/', '', $val))
 		|> (fn($val) => str_replace('/', '\\', $val))
 	;
 
-	foreach (NAMESPACE_ALIASES as $folder => $namespace)
+	foreach (CPHP_NAMESPACE_ALIASES as $folder => $namespace)
 	{
 		if (str_starts_with($class, $folder))
 		{
-			error_log("replace: {$class}");
+			cphpLog("replace: {$class}", channel: 'Router');
 			$class = $namespace . substr($class, strlen($folder));
-			error_log("After: {$class}");
+			cphpLog("After: {$class}", channel: 'Router');
 		}
 	}
 
