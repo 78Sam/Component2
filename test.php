@@ -1,18 +1,7 @@
 <?php
 
-class Test extends Exception
-{
-	public ?string $x;
+$x = ['a', 'b', 'c'];
 
-	public function setErrorCode(int $errorCode): self
-	{
-		$this->code = $errorCode;
+$y = ['d', ...$x];
 
-		return $this;
-	}
-}
-
-$x = new Test('Hello');
-$x->setErrorCode(112);
-var_dump($x);
-throw $x;
+print_r($y);

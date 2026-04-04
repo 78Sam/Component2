@@ -148,13 +148,15 @@ class Router
 		echo $response->content;
 
 		/** @var ?Request[] $cachedRequests */
-		$cachedRequests = $this->cache->readCache(CacheLine::Requests);
-		if ($cachedRequests)
+		$cachedRequests = $this->cache->readCache(CacheLine::Requests, default: null);
+        dump($cachedRequests);
+
+		if ($cachedRequests !== null)
 		{
 			$this->previousRequests = $cachedRequests;
 		}
 
-		$this->previousRequests = array_merge([$this->coreRequest], $this->previousRequests);
+		$this->previousRequests = [$this->coreRequest, ...$this->previousRequests];
         cphpLog('Handling response');
         dump($this->previousRequests);
 		$this->cache->writeCache(CacheLine::Requests, $this->previousRequests);
