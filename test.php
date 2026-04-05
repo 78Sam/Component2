@@ -2,16 +2,17 @@
 
 class Test
 {
-    public static array $x = [];
+    private int $x = 3;
 
-    public static function add(int $p)
+    public function getX()
     {
-        self::$x[] = $p;
+        return $this->x;
     }
 }
 
-Test::add(2);
-Test::add(4);
-Test::add(3);
+class Test2 extends Test
+{
+}
 
-print_r(Test::$x);
+$p = new Test2();
+echo $p->getX();
