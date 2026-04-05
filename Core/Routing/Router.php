@@ -23,7 +23,7 @@ class Router
 	/** @var string[] CONTROLLER_DIRECTORIES */
 	public const array CONTROLLER_DIRECTORIES = [
 		CPHP_ROOT_DIR . '/App/Controllers',
-		CPHP_ROOT_DIR . '/Core/Routing/Controllers',
+		CPHP_ROOT_DIR . '/Core/Site/Controllers',
 	];
 
 	/** @var Request[] $previousRequests */
@@ -151,7 +151,7 @@ class Router
 			$this->previousRequests = $cachedRequests;
 		}
 
-		$this->previousRequests = [$this->coreRequest, ...$this->previousRequests];
+		$this->previousRequests = [$this->coreRequest, ...array_slice($this->previousRequests, 0, 9)];
         cphpLog('Handling response');
 		RoutingCache::writeCache(CacheLine::Requests, $this->previousRequests);
 	}

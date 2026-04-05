@@ -1,18 +1,5 @@
 <?php
 
-class Test
-{
-    private int $x = 3;
+$x = [1, 2, 3, 4, 5];
 
-    public function getX()
-    {
-        return $this->x;
-    }
-}
-
-class Test2 extends Test
-{
-}
-
-$p = new Test2();
-echo $p->getX();
+print_r(array_slice($x, 0, 22));

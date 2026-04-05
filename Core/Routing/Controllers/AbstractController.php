@@ -13,11 +13,4 @@ abstract class AbstractController
 		protected readonly Router $router,
 	) {
 	}
-
-	protected function render(string $component): Response
-	{
-		$fullPath = CPHP_ROOT_DIR . '/App/Components/' . trim($component, '/\\');
-
-		return new Response(file_get_contents($fullPath));
-	}
 }

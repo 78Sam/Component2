@@ -14,12 +14,8 @@ abstract class AbstractTemplate
     public static function render(array $values = []): string
     {
         $schematic = static::draw($values);
-        if (\is_string($schematic))
-        {
-            return $schematic;
-        }
 
-        return $schematic->render();
+        return \is_string($schematic) ? $schematic : $schematic->render();
     }
 
     abstract protected static function draw(array $values): Component|string;
@@ -27,9 +23,9 @@ abstract class AbstractTemplate
     /**
      * @throws ComponentNotFoundException
      */
-    protected static function loadComponent(string $name): Component
+    protected static function loadComponent(string $name, bool $absolutePath = false): Component
     {
-        $path = CPHP_COMPONENTS_DIR . "/{$name}";
+        $path = $absolutePath ? $name : CPHP_COMPONENTS_DIR . "/{$name}";
         if (!file_exists($path))
         {
             throw new ComponentNotFoundException(message: "Cannot find component at '{$path}'", code: 404);
@@ -37,7 +33,7 @@ abstract class AbstractTemplate
 
         $content = '';
         $cachedComponents = ComponentCache::readCache(CacheLine::Components, []);
-        if (\array_key_exists($path, $cachedComponents))
+        if (!CPHP_IS_DEV && \array_key_exists($path, $cachedComponents))
         {
             $content = $cachedComponents[$path];
             cphpLog("Found cached value for component '{$path}'");

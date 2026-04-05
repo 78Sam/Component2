@@ -9,17 +9,22 @@ use ComponentPHP\Components\Model\Component;
 
 class Home extends AbstractTemplate
 {
+    // protected static function draw(array $values): Component
+    // {
+    //     $heading = self::loadComponent('heading.html')
+    //         ->fill('value', 'Yoooo!')
+    //     ;
+        
+    //     $app = self::loadComponent('home.html')
+    //         ->fill('app', $heading)
+    //         ->fill('head', '<style>some dumb ah head value</style>')
+    //     ;
+
+    //     return $app;
+    // }
+
     protected static function draw(array $values): Component
     {
-        $heading = self::loadComponent('heading.html')
-            ->fill('value', 'Yoooo!')
-        ;
-        
-        $app = self::loadComponent('home.html')
-            ->fill('app', $heading)
-            ->fill('head', '<style>some dumb ah head value</style>')
-        ;
-
-        return $app;
+        return self::loadComponent('app.html');
     }
 }

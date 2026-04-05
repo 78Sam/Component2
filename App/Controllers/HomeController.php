@@ -14,7 +14,7 @@ class HomeController extends AbstractController
 	#[Route(route: '/', name: 'app_home')]
 	public function index(): Response
 	{
-		return $this->render('app.html');
+		return new Response(Home::render());
 	}
 
 	#[Route(route: '/random-number', name: 'app_randomNumber')]
@@ -38,10 +38,4 @@ class HomeController extends AbstractController
 	{
 		return new Response('I love uma <3', responseCode: 200);
 	}
-
-    #[Route(route: '/component', name: 'app_component')]
-    public function component(): Response
-    {
-        return new Response(Home::render());
-    }
 }
