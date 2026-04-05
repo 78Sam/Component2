@@ -29,15 +29,12 @@ class Router
 	/** @var Request[] $previousRequests */
 	public array $previousRequests = [];
 
-	private RoutingCache $cache;
-
 	private ?Request $coreRequest = null;
 
 	private SiteMap $siteMap;
 
 	public function __construct()
 	{
-		$this->cache = new RoutingCache();
         $this->siteMap = new SiteMap();
 	}
 
@@ -58,7 +55,7 @@ class Router
 
 		// If we are running in production, read the sitemap from cache
 
-		$cacheValue = $this->cache->readCache(CacheLine::SiteMap);
+		$cacheValue = RoutingCache::readCache(CacheLine::SiteMap);
 		if ($cacheValue === null)
 		{
             cphpLog('Failed to read cached site map for prod build', level: 'warning');
@@ -148,9 +145,7 @@ class Router
 		echo $response->content;
 
 		/** @var ?Request[] $cachedRequests */
-		$cachedRequests = $this->cache->readCache(CacheLine::Requests, default: null);
-        dump($cachedRequests);
-
+		$cachedRequests = RoutingCache::readCache(CacheLine::Requests, default: null);
 		if ($cachedRequests !== null)
 		{
 			$this->previousRequests = $cachedRequests;
@@ -158,8 +153,7 @@ class Router
 
 		$this->previousRequests = [$this->coreRequest, ...$this->previousRequests];
         cphpLog('Handling response');
-        dump($this->previousRequests);
-		$this->cache->writeCache(CacheLine::Requests, $this->previousRequests);
+		RoutingCache::writeCache(CacheLine::Requests, $this->previousRequests);
 	}
 
 	// ! Util
@@ -171,7 +165,7 @@ class Router
 		{
 			$this->drawSiteMap($directory);
 		}
-		$this->cache->writeCache(CacheLine::SiteMap, $this->siteMap);
+		RoutingCache::writeCache(CacheLine::SiteMap, $this->siteMap);
 	}
 
 	/**

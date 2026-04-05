@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace ComponentPHP\Cache\Routing;
+namespace ComponentPHP\Cache\Components;
 
 use ComponentPHP\Cache\AbstractCache;
 
-class RoutingCache extends AbstractCache
+class ComponentCache extends AbstractCache
 {
 	protected static function getDir(): string
 	{

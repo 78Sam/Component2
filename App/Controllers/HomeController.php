@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Views\Home;
 use ComponentPHP\Routing\Controllers\AbstractController;
 use ComponentPHP\Routing\Attributes\Route;
 use ComponentPHP\Routing\Model\Response;
@@ -37,4 +38,10 @@ class HomeController extends AbstractController
 	{
 		return new Response('I love uma <3', responseCode: 200);
 	}
+
+    #[Route(route: '/component', name: 'app_component')]
+    public function component(): Response
+    {
+        return new Response(Home::render());
+    }
 }

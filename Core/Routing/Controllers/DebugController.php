@@ -15,10 +15,8 @@ class DebugController extends AbstractController
     #[Route(route: '/_debug', name: 'debug_home')]
     public function home(): Response
     {
-        $cache = new RoutingCache();
-
         /** @var Request[] $recentRequests */
-        $recentRequests = $cache->readCache(CacheLine::Requests, default: []); // TODO: Reading the cache clears it??...
+        $recentRequests = RoutingCache::readCache(CacheLine::Requests, default: []);
 
         ob_start();
         foreach ($recentRequests as $request)

@@ -11,6 +11,10 @@ enum CacheLine: string
 	case SiteMap = "SiteMapCacheLine.php";
 	case Requests = "RequestsLine.php";
 
+    // ! Components
+
+    case Components = "Components.php";
+
 	public function path(string $path): string
 	{
 		return "{$path}/Lines/{$this->value}";

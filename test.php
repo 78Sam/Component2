@@ -1,7 +1,17 @@
 <?php
 
-$x = ['a', 'b', 'c'];
+class Test
+{
+    public static array $x = [];
 
-$y = ['d', ...$x];
+    public static function add(int $p)
+    {
+        self::$x[] = $p;
+    }
+}
 
-print_r($y);
+Test::add(2);
+Test::add(4);
+Test::add(3);
+
+print_r(Test::$x);
