@@ -4,56 +4,49 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Cache;
 
+use ComponentPHP\Cache\CacheLine;
+
 abstract class AbstractCache
 {
-	protected const string CACHE_LINE_HEADER = "<?php\n\ndeclare(strict_types=1);\n\n\$_cacheLineData = ";
+    protected const string CACHE_LINE_HEADER = "<?php\n\ndeclare(strict_types=1);\n\n\$_cacheLineData = ";
 
-    /** @var array<string, array{data: mixed, dir: string}> $store */
-    private static array $store = [];
-    
-    private static bool $registeredShutdown = false;
+    /** @var array<string, mixed> $store */
+    protected array $store = [];
 
-	public static function writeCache(CacheLine $cacheLine, mixed $data): void
-	{
-        self::writeStore($cacheLine, $data);
-        if (!self::$registeredShutdown)
+    public function __destruct()
+    {
+        foreach ($this->store as $file => $cachedValue)
         {
-            register_shutdown_function([self::class, 'writeBack']);
-            self::$registeredShutdown = true;
+            file_put_contents($file, self::CACHE_LINE_HEADER . var_export($cachedValue, return: true) . ";\n");
         }
-	}
+    }
 
-	public static function readCache(CacheLine $cacheLine, mixed $default = null): mixed
-	{
-        if (\array_key_exists($cacheLine->value, self::$store))
+    public function readCache(CacheLine $cacheLine, mixed $default = null)
+    {
+        $path = $cacheLine->path($this->getDir());
+        if (\array_key_exists($path, $this->store))
         {
-            return self::$store[$cacheLine->value]['data'];
+            return $this->store[$cacheLine->value];
         }
 
-        $path = $cacheLine->path(static::getDir());
         if (!file_exists($path))
         {
+            cphpLog("Failed to find cache file {$path}", level: 'warning');
+
             return $default;
         }
 
-		include_once $path;
-        self::writeStore($cacheLine, $_cacheLineData);
+        // TODO: Do we maybe want to ?? $default, issue is if we have saved 'null'
+        include_once $path;
+        $this->store[$cacheLine->value] = $_cacheLineData;
 
-		return $_cacheLineData;
-	}
-
-    protected static function writeStore(CacheLine $cacheLine, mixed $data): void
-    {
-        self::$store[$cacheLine->value] = ['data' => $data, 'dir' => $cacheLine->path(static::getDir())];
+        return $this->store[$cacheLine->value];
     }
 
-	abstract protected static function getDir(): string;
-
-    protected static function writeBack()
+    public function writeCache(CacheLine $cacheLine, mixed $data): void
     {
-        foreach (self::$store as $key => $data)
-        {
-            file_put_contents($data['dir'], self::CACHE_LINE_HEADER . var_export($data['data'], return: true) . ";\n");
-        }
+        $this->store[$cacheLine->path($this->getDir())] = $data;
     }
+
+    abstract protected function getDir(): string;
 }

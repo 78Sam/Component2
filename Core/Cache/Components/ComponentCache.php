@@ -8,7 +8,7 @@ use ComponentPHP\Cache\AbstractCache;
 
 class ComponentCache extends AbstractCache
 {
-	protected static function getDir(): string
+	protected function getDir(): string
 	{
 		return __DIR__;
 	}
