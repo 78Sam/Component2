@@ -7,14 +7,17 @@ namespace App\Controllers;
 use App\Views\Home;
 use ComponentPHP\Routing\Controllers\AbstractController;
 use ComponentPHP\Routing\Attributes\Route;
-use ComponentPHP\Routing\Model\Response;
+use ComponentPHP\Routing\Models\Response;
 
 class HomeController extends AbstractController
 {
 	#[Route(route: '/', name: 'app_home')]
 	public function index(): Response
 	{
-		return new Response(Home::render());
+        $view = new Home();
+        $view->run();
+
+		return new Response('');
 	}
 
 	#[Route(route: '/random-number', name: 'app_randomNumber')]

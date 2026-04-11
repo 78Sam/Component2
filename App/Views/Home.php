@@ -23,8 +23,9 @@ class Home extends AbstractTemplate
     //     return $app;
     // }
 
-    protected static function draw(array $values): Component
+    public function run()
     {
-        return self::loadComponent('app.html');
+        $components = $this->loadFile('app.html');
+        dump($components);
     }
 }

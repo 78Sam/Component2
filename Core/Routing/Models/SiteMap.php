@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ComponentPHP\Routing\Model;
+namespace ComponentPHP\Routing\Models;
 
 class SiteMap
 {

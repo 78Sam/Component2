@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Routing\Controllers;
 
-use ComponentPHP\Routing\Model\Response;
+use ComponentPHP\Routing\Models\Response;
 use ComponentPHP\Routing\Router;
 
 abstract class AbstractController

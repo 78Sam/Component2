@@ -35,7 +35,8 @@ function dump(mixed ...$values): void
 	echo "{$file}::{$line}\n\n";
 	foreach ($values as $value)
 	{
-		print_r($value);
+		$data = print_r($value, return: true);
+        echo htmlspecialchars($data);
 		echo '<br>';
 	}
 	echo "\n\n</pre>";

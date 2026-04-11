@@ -13,10 +13,10 @@ use ComponentPHP\Routing\Exceptions\PageNotFoundException;
 use ComponentPHP\Routing\Exceptions\RouteAlreadyExistsException;
 use ComponentPHP\Routing\Exceptions\RoutingException;
 use ComponentPHP\Routing\Exceptions\UrlParseException;
-use ComponentPHP\Routing\Model\Request;
-use ComponentPHP\Routing\Model\Response;
-use ComponentPHP\Routing\Model\SiteMap;
-use ComponentPHP\Routing\Model\SiteMapEntry;
+use ComponentPHP\Routing\Models\Request;
+use ComponentPHP\Routing\Models\Response;
+use ComponentPHP\Routing\Models\SiteMap;
+use ComponentPHP\Routing\Models\SiteMapEntry;
 
 class Router
 {

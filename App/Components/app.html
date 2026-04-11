@@ -1,15 +1,22 @@
-<component !@( #component )>
-    <p>!@( $myVar )</p>
+<component !@( #component|myVar )>
+<p>!@( $myVar )</p>
 </component>
 
+<component !@( #component|myVar2 )>
+<p>!@( $myVar2 )</p>
+</component>
+
+<component !@( #component|myVar3 )>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
+        <title>!@( $titleVar )</title>
     </head>
     <body>
-        !@( $body )
+        !@( $bodyVar )
+        !@( $bodyVar2 )
     </body>
 </html>
+</component>

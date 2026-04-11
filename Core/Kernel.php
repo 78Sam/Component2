@@ -20,13 +20,13 @@ class Kernel
             $this->router->init();
 			$this->router->handleRequest();
 		}
-		catch (\Exception $exception)
+		catch (\Throwable $exception)
 		{
 			$this->except($exception);
 		}
 	}
 
-	private function except(\Exception $e): never
+	private function except(\Throwable $e): never
 	{
         cphpLog($e->getMessage(), 'error');
 		dump($e);

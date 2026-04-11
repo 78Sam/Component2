@@ -7,7 +7,7 @@ namespace ComponentPHP\Components;
 use ComponentPHP\Cache\CacheLine;
 use ComponentPHP\Cache\Components\ComponentCache;
 use ComponentPHP\Components\Exceptions\ComponentNotFoundException;
-use ComponentPHP\Components\Model\Component;
+use ComponentPHP\Components\Models\Component;
 
 abstract class AbstractTemplate
 {
@@ -51,6 +51,9 @@ abstract class AbstractTemplate
     //     );
     // }
 
+    private const string COMPONENTS_PATTERN = '/<component\s+!@\(\s*#component\|(?<name>\w+)\s*\)>(?<component>.*?)<\/component>/s';
+    private const string VARIABLE_PATTERN = '/!@\(\s*\$(?<name>[a-zA-Z_]+\w*)\s*\)/';
+
     private ComponentCache $componentCache;
 
     public function __construct()
@@ -58,7 +61,11 @@ abstract class AbstractTemplate
         $this->componentCache = new ComponentCache();
     }
 
-    public function loadFile(string $filename, bool $absolutePath = false)
+    /**
+     * @throws ComponentNotFoundException
+     * @return array<string, Component>
+     */
+    protected function loadFile(string $filename, bool $absolutePath = false): array
     {
         $path = $absolutePath ? $filename : CPHP_COMPONENTS_DIR . "/{$filename}";
         if (!file_exists($path))
@@ -66,10 +73,38 @@ abstract class AbstractTemplate
             throw new ComponentNotFoundException(message: "Cannot find component at '{$path}'", code: 404);
         }
 
-        $components = $this->componentCache->readCache(CacheLine::Components, null);
-        if ($components === null)
+        /** @var array<string, Component> $components */
+        $components = [];
+        if (!CPHP_IS_DEV)
         {
-            // TODO: Load them as component objects and save them as objects to the cache
+            $components = $this->componentCache->readCache(CacheLine::Components, []);
         }
+
+        if (CPHP_IS_DEV || $components === [])
+        {
+            $components = $this->buildComponents(file_get_contents($path));
+            $this->componentCache->writeCache(CacheLine::Components, $components);
+        }
+
+        return $components;
+    }
+
+    /**
+     * @return array<string, Component>
+     */
+    private function buildComponents(string $content): array
+    {
+        /** @var array<string, Component> $components */
+        $components = [];
+        $matches = [];
+        preg_match_all(self::COMPONENTS_PATTERN, $content, $matches);
+        for ($i = 0; $i < \count($matches['name']); $i++)
+        {
+            $name = $matches['name'][$i];
+            $body = trim($matches['component'][$i]);
+            $components[$matches['name'][$i]] = new Component($name, $body);
+        }
+
+        return $components;
     }
 }

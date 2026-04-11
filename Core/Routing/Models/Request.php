@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ComponentPHP\Routing\Model;
+namespace ComponentPHP\Routing\Models;
 
 // TODO: Add $_POST parameters to the request object
 readonly class Request
