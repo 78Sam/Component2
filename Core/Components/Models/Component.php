@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Components\Models;
 
-class Component
+class Component implements \Stringable
 {
     private const string VARIABLE_PATTERN = '/!@\(\s*\$(?<name>[a-zA-Z_]+\w*)\s*\)/';
 
-    /** @var array<string, bool> $sockets */
+    /** @var array<string, string|self> $sockets */
     private array $sockets = [];
 
     public function __construct(
@@ -21,26 +21,70 @@ class Component
 
     public static function __set_state(array $properties): self
     {
-        return new Component(...$properties);
+        return new self(...$properties);
     }
 
-    // public function fill(string $name, string $value): self
-    // {
+	public function __tostring(): string
+	{
+		return implode('', $this->sockets);
+	}
 
-    // }
+	public function render(): string
+	{
+		return $this->__tostring();
+	}
+
+    public function fill(string $name, string|self $value): self
+    {
+		if (!\array_key_exists($name, $this->sockets))
+		{
+			cphpLog(
+				"Attempted to fill an undefined socket '{$name}' in component '{$this->name}'",
+				level: 'warning',
+				channel: \LoggingChannels::Templating,
+			);
+
+			return $this;
+		}
+
+		if (str_starts_with($name, '_chunk_'))
+		{
+			cphpLog(
+				"Potentially attempting to fill generated socket '{$name}'",
+				level: 'warning',
+				channel: \LoggingChannels::Templating,
+			);
+		}
+
+		$this->sockets[$name] = $value;
+
+		return $this;
+    }
 
     /**
-     * @return array<string, bool>
+     * @return array<string, string>
      */
     private function findSockets(): array
     {
-        $matches = [];
-        preg_replace_callback(self::VARIABLE_PATTERN, function ($value) use (&$matches) {
-            $matches[$value['name']] = true;
+		cphpLog("Computing sockets for component '{$this->name}'", channel: \LoggingChannels::Templating);
 
-            return "!@(\${$value["name"]})";
-        }, $this->body);
+		$matches = [];
+		preg_match_all(self::VARIABLE_PATTERN, $this->body, $matches);
 
-        return $matches;
+		$result = [];
+		$content = $this->body;
+		for ($i = 0; $i < \count($matches[0]); $i++)
+		{
+			$split = explode($matches[0][$i], $content);
+			$result["_chunk_{$i}"] = $split[0];
+			$result[$matches['name'][$i]] = '';
+			if (\count($split) > 1)
+			{
+				$content = $split[1];
+			}
+		}
+		$result['_chunk_-1'] = $content;
+		
+        return $result;
     }
 }

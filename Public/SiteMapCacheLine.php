@@ -1,0 +1,138 @@
+<?php
+
+declare(strict_types=1);
+
+$_cacheLineData = \ComponentPHP\Routing\Models\SiteMap::__set_state(array(
+   'routes' => 
+  array (
+    '/' => 
+    \ComponentPHP\Routing\Models\SiteMapEntry::__set_state(array(
+       'route' => '/',
+       'name' => 'app_home',
+       'class' => 'App\\Controllers\\HomeController',
+       'method' => 'index',
+    )),
+    '/random-number' => 
+    \ComponentPHP\Routing\Models\SiteMapEntry::__set_state(array(
+       'route' => '/random-number',
+       'name' => 'app_randomNumber',
+       'class' => 'App\\Controllers\\HomeController',
+       'method' => 'randomNumber',
+    )),
+    '/validate' => 
+    \ComponentPHP\Routing\Models\SiteMapEntry::__set_state(array(
+       'route' => '/validate',
+       'name' => 'app_validate',
+       'class' => 'App\\Controllers\\HomeController',
+       'method' => 'validate',
+    )),
+    '/uma' => 
+    \ComponentPHP\Routing\Models\SiteMapEntry::__set_state(array(
+       'route' => '/uma',
+       'name' => 'app_uma',
+       'class' => 'App\\Controllers\\HomeController',
+       'method' => 'uma',
+    )),
+    '/sam' => 
+    \ComponentPHP\Routing\Models\SiteMapEntry::__set_state(array(
+       'route' => '/sam',
+       'name' => 'app_sam',
+       'class' => 'App\\Controllers\\Afdbm\\SamController',
+       'method' => 'test',
+    )),
+    '/_debug' => 
+    \ComponentPHP\Routing\Models\SiteMapEntry::__set_state(array(
+       'route' => '/_debug',
+       'name' => 'debug_home',
+       'class' => 'ComponentPHP\\Site\\Controllers\\DebugController',
+       'method' => 'home',
+    )),
+    '/_debug/requests' => 
+    \ComponentPHP\Routing\Models\SiteMapEntry::__set_state(array(
+       'route' => '/_debug/requests',
+       'name' => 'debug_requests',
+       'class' => 'ComponentPHP\\Site\\Controllers\\DebugController',
+       'method' => 'getRequests',
+    )),
+    '/_debug/site-map' => 
+    \ComponentPHP\Routing\Models\SiteMapEntry::__set_state(array(
+       'route' => '/_debug/site-map',
+       'name' => 'debug_siteMap',
+       'class' => 'ComponentPHP\\Site\\Controllers\\DebugController',
+       'method' => 'getSiteMap',
+    )),
+    '/_debug/php-info' => 
+    \ComponentPHP\Routing\Models\SiteMapEntry::__set_state(array(
+       'route' => '/_debug/php-info',
+       'name' => 'debug_phpInfo',
+       'class' => 'ComponentPHP\\Site\\Controllers\\DebugController',
+       'method' => 'getPHPInfo',
+    )),
+  ),
+   'names' => 
+  array (
+    'app_home' => 
+    \ComponentPHP\Routing\Models\SiteMapEntry::__set_state(array(
+       'route' => '/',
+       'name' => 'app_home',
+       'class' => 'App\\Controllers\\HomeController',
+       'method' => 'index',
+    )),
+    'app_randomNumber' => 
+    \ComponentPHP\Routing\Models\SiteMapEntry::__set_state(array(
+       'route' => '/random-number',
+       'name' => 'app_randomNumber',
+       'class' => 'App\\Controllers\\HomeController',
+       'method' => 'randomNumber',
+    )),
+    'app_validate' => 
+    \ComponentPHP\Routing\Models\SiteMapEntry::__set_state(array(
+       'route' => '/validate',
+       'name' => 'app_validate',
+       'class' => 'App\\Controllers\\HomeController',
+       'method' => 'validate',
+    )),
+    'app_uma' => 
+    \ComponentPHP\Routing\Models\SiteMapEntry::__set_state(array(
+       'route' => '/uma',
+       'name' => 'app_uma',
+       'class' => 'App\\Controllers\\HomeController',
+       'method' => 'uma',
+    )),
+    'app_sam' => 
+    \ComponentPHP\Routing\Models\SiteMapEntry::__set_state(array(
+       'route' => '/sam',
+       'name' => 'app_sam',
+       'class' => 'App\\Controllers\\Afdbm\\SamController',
+       'method' => 'test',
+    )),
+    'debug_home' => 
+    \ComponentPHP\Routing\Models\SiteMapEntry::__set_state(array(
+       'route' => '/_debug',
+       'name' => 'debug_home',
+       'class' => 'ComponentPHP\\Site\\Controllers\\DebugController',
+       'method' => 'home',
+    )),
+    'debug_requests' => 
+    \ComponentPHP\Routing\Models\SiteMapEntry::__set_state(array(
+       'route' => '/_debug/requests',
+       'name' => 'debug_requests',
+       'class' => 'ComponentPHP\\Site\\Controllers\\DebugController',
+       'method' => 'getRequests',
+    )),
+    'debug_siteMap' => 
+    \ComponentPHP\Routing\Models\SiteMapEntry::__set_state(array(
+       'route' => '/_debug/site-map',
+       'name' => 'debug_siteMap',
+       'class' => 'ComponentPHP\\Site\\Controllers\\DebugController',
+       'method' => 'getSiteMap',
+    )),
+    'debug_phpInfo' => 
+    \ComponentPHP\Routing\Models\SiteMapEntry::__set_state(array(
+       'route' => '/_debug/php-info',
+       'name' => 'debug_phpInfo',
+       'class' => 'ComponentPHP\\Site\\Controllers\\DebugController',
+       'method' => 'getPHPInfo',
+    )),
+  ),
+));

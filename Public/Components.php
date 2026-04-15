@@ -27,6 +27,7 @@ $_cacheLineData = array (
     array (
       'titleVar' => true,
       'bodyVar' => true,
+      'bodyVar2' => true,
     ),
      'name' => 'myVar3',
      'body' => '<!DOCTYPE html>
@@ -38,6 +39,7 @@ $_cacheLineData = array (
     </head>
     <body>
         !@( $bodyVar )
+        !@( $bodyVar2 )
     </body>
 </html>',
   )),

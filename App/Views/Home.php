@@ -5,27 +5,27 @@ declare(strict_types=1);
 namespace App\Views;
 
 use ComponentPHP\Components\AbstractTemplate;
-use ComponentPHP\Components\Model\Component;
 
 class Home extends AbstractTemplate
 {
-    // protected static function draw(array $values): Component
-    // {
-    //     $heading = self::loadComponent('heading.html')
-    //         ->fill('value', 'Yoooo!')
-    //     ;
-        
-    //     $app = self::loadComponent('home.html')
-    //         ->fill('app', $heading)
-    //         ->fill('head', '<style>some dumb ah head value</style>')
-    //     ;
-
-    //     return $app;
-    // }
-
     public function run()
     {
         $components = $this->loadFile('app.html');
-        dump($components);
+		
+		$paragraph = $components['paragraph'];
+		$paragraph
+			->fill('text', 'Hello is a paragraph')
+		;
+
+		$main = $components['main'];
+		$main
+			->fill('titleVar', 'Sams cool document!')
+			->fill('bodyVar', '<h1>Its a body!</h1>')
+			->fill('bodyVar2', $paragraph)
+		;
+
+        // dump($components);
+
+		echo $main;
     }
 }

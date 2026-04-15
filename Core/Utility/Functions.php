@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 /**
  * @return array{file: string, line: int}
  */
@@ -42,8 +41,16 @@ function dump(mixed ...$values): void
 	echo "\n\n</pre>";
 }
 
+// TODO: Change channel used by logging function to expect enum not string
+enum LoggingChannels: string
+{
+	case Core = 'Core';
+	case Templating = 'Templating';
+	case Router = 'Router';
+}
 
-function cphpLog(string $message, string $level = 'info', string $channel = 'Core'): void
+
+function cphpLog(string $message, string $level = 'info', LoggingChannels $channel = LoggingChannels::Core): void
 {
     $debugFrame = getDebugBacktrace();
     $file = $debugFrame['file'];
@@ -52,7 +59,7 @@ function cphpLog(string $message, string $level = 'info', string $channel = 'Cor
     $datetime = new \DateTime(timezone: new \DateTimeZone(CPHP_TIMEZONE));
     $datetimeFormatted = $datetime->format('d-m-Y H:i:s');
 
-    $dir = CPHP_LOG_DIR . "/{$channel}";
+    $dir = CPHP_LOG_DIR . "/{$channel->value}";
     if (!file_exists($dir))
     {
         mkdir($dir, recursive: true);
@@ -60,7 +67,7 @@ function cphpLog(string $message, string $level = 'info', string $channel = 'Cor
 
     $log = "{$datetimeFormatted} {$file}::{$line} | [{$level}] {$message}";
 
-    // error_log($log);
+    // TODO: Is this essentially performing I/O for each log, could be costly
     error_log("{$log}\n", message_type: 3, destination: "{$dir}/log.log");
 }
 
@@ -78,9 +85,9 @@ function pathToClass(string $path)
 	{
 		if (str_starts_with($class, $folder))
 		{
-			cphpLog("replace: {$class}", channel: 'Router');
+			cphpLog("replace: {$class}", channel: LoggingChannels::Router);
 			$class = $namespace . substr($class, strlen($folder));
-			cphpLog("After: {$class}", channel: 'Router');
+			cphpLog("After: {$class}", channel: LoggingChannels::Router);
 		}
 	}
 
