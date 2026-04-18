@@ -9,8 +9,8 @@ define('CPHP_LOG_DIR', CPHP_ROOT_DIR . '/Log');
 define('CPHP_COMPONENTS_DIR', CPHP_ROOT_DIR . '/App/Components');
 
 define('CPHP_NAMESPACE_ALIASES', [
-	'Core' => 'ComponentPHP',
-	// 'App' => 'App',
+    'Core' => 'ComponentPHP',
+    // 'App' => 'App',
 ]);
 
 define('CPHP_IS_DEV', true);

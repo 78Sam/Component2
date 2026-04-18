@@ -8,13 +8,19 @@ use Throwable;
 
 class RouteAlreadyExistsException extends RoutingException
 {
-	public readonly string $route;
-	public readonly string $name;
-	public function __construct(string $route, string $name, string $message = "", int $code = 0, Throwable|null $previous = null)
-	{
-		$this->route = $route;
-		$this->route = $name;
+    public readonly string $route;
+    public readonly string $name;
 
-		return parent::__construct(message: $message, code:  $code, previous: $previous);
-	}
+    public function __construct(
+        string $route,
+        string $name,
+        string $message = '',
+        int $code = 0,
+        ?Throwable $previous = null,
+    ) {
+        $this->route = $route;
+        $this->route = $name;
+
+        return parent::__construct(message: $message, code: $code, previous: $previous);
+    }
 }

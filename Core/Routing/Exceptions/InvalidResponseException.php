@@ -4,5 +4,4 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Routing\Exceptions;
 
-class InvalidResponseException extends RoutingException
-{}
+class InvalidResponseException extends RoutingException {}

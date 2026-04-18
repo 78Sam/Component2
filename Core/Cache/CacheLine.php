@@ -6,17 +6,17 @@ namespace ComponentPHP\Cache;
 
 enum CacheLine: string
 {
-	// ! Routing
+    // ! Routing
 
-	case SiteMap = "SiteMapCacheLine.php";
-	case Requests = "RequestsLine.php";
+    case SiteMap = 'SiteMapCacheLine.php';
+    case Requests = 'RequestsLine.php';
 
     // ! Components
 
-    case Components = "Components.php";
+    case Components = 'Components.php';
 
-	public function path(string $path): string
-	{
-		return "{$path}/Lines/{$this->value}";
-	}
+    public function path(string $path): string
+    {
+        return "{$path}/Lines/{$this->value}";
+    }
 }

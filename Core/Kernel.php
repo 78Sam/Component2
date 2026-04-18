@@ -8,29 +8,26 @@ use ComponentPHP\Routing\Router;
 
 class Kernel
 {
-	private Router $router;
+    private Router $router;
 
-	public function __construct()
-	{
+    public function __construct()
+    {
         $mode = CPHP_IS_DEV ? 'DEV' : 'PROD';
         cphpLog("Starting Kernel in {$mode} mode");
-		try
-		{
-			$this->router = new Router();
+        try {
+            $this->router = new Router();
             $this->router->init();
-			$this->router->handleRequest();
-		}
-		catch (\Throwable $exception)
-		{
-			$this->except($exception);
-		}
-	}
+            $this->router->handleRequest();
+        } catch (\Throwable $exception) {
+            $this->except($exception);
+        }
+    }
 
-	private function except(\Throwable $e): never
-	{
+    private function except(\Throwable $e): never
+    {
         cphpLog($e->getMessage(), 'error');
-		dump($e);
+        dump($e);
 
-		exit();
-	}
+        exit();
+    }
 }

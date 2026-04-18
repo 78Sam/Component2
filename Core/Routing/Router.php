@@ -20,224 +20,206 @@ use ComponentPHP\Routing\Models\SiteMapEntry;
 
 class Router
 {
-	/** @var string[] CONTROLLER_DIRECTORIES */
-	public const array CONTROLLER_DIRECTORIES = [
-		CPHP_ROOT_DIR . '/App/Controllers',
-		CPHP_ROOT_DIR . '/Core/Site/Controllers',
-	];
+    /** @var string[] CONTROLLER_DIRECTORIES */
+    public const array CONTROLLER_DIRECTORIES = [
+        CPHP_ROOT_DIR . '/App/Controllers',
+        CPHP_ROOT_DIR . '/Core/Site/Controllers',
+    ];
 
-	/** @var Request[] $previousRequests */
-	public array $previousRequests = [];
+    /** @var Request[] $previousRequests */
+    public array $previousRequests = [];
 
-	private ?Request $coreRequest = null;
+    private ?Request $coreRequest = null;
 
-	private SiteMap $siteMap;
+    private SiteMap $siteMap;
     private RoutingCache $routingCache;
 
-	public function __construct()
-	{
+    public function __construct()
+    {
         $this->siteMap = new SiteMap();
         $this->routingCache = new RoutingCache();
-	}
+    }
 
-	/**
-	 * @throws RoutingException
-	 */
-	public function init()
-	{
+    /**
+     * @throws RoutingException
+     */
+    public function init()
+    {
         cphpLog('Starting router');
-		$this->coreRequest = $this->parseCoreRequest();
+        $this->coreRequest = $this->parseCoreRequest();
 
-		if (CPHP_IS_DEV)
-		{
-			$this->drawFullSiteMap();
+        if (CPHP_IS_DEV) {
+            $this->drawFullSiteMap();
 
-			return;
-		}
+            return;
+        }
 
-		// If we are running in production, read the sitemap from cache
+        // If we are running in production, read the sitemap from cache
 
-		$cacheValue = $this->routingCache->readCache(CacheLine::SiteMap);
-		if ($cacheValue === null)
-		{
+        $cacheValue = $this->routingCache->readCache(CacheLine::SiteMap);
+        if ($cacheValue === null) {
             cphpLog('Failed to read cached site map for prod build', level: 'warning');
-			$this->drawFullSiteMap();
-		}
-		else
-		{
-			$this->siteMap = $cacheValue;
-		}
-	}
+            $this->drawFullSiteMap();
+        } else {
+            $this->siteMap = $cacheValue;
+        }
+    }
 
-	/**
-	 * Create the request object from server parameters
-	 *
-	 * @throws UrlParseException
-	 */
-	private function parseCoreRequest(): Request
-	{
-		$scheme = ($_SERVER['HTTPS'] ?? 'off') === 'on' ? 'https' : 'http';
+    /**
+     * Create the request object from server parameters
+     *
+     * @throws UrlParseException
+     */
+    private function parseCoreRequest(): Request
+    {
+        $scheme = ($_SERVER['HTTPS'] ?? 'off') === 'on' ? 'https' : 'http';
 
-		$host = $_SERVER['HTTP_HOST'] ?? null;
-		if ($host === null)
-		{
-			throw new UrlParseException('$_SERVER["HTTP_HOST"] is null', code: 500);
-		}
+        $host = $_SERVER['HTTP_HOST'] ?? null;
+        if ($host === null) {
+            throw new UrlParseException('$_SERVER["HTTP_HOST"] is null', code: 500);
+        }
 
         $hostAndPort = explode(':', $host);
         $host = $hostAndPort[0];
         $port = null;
-        if (\count($hostAndPort) === 2)
-        {
+        if (\count($hostAndPort) === 2) {
             $port = (int) $hostAndPort[1];
         }
 
-		$uri = $_SERVER['REQUEST_URI'] ?? null;
-		if ($uri === null)
-		{
-			throw new UrlParseException('$_SERVER["REQUEST_URI"] is null', code: 500);
-		}
+        $uri = $_SERVER['REQUEST_URI'] ?? null;
+        if ($uri === null) {
+            throw new UrlParseException('$_SERVER["REQUEST_URI"] is null', code: 500);
+        }
 
-		$routeAndQuery = explode('?', $uri, limit: 2);
-		$route = '/' . trim($routeAndQuery[0], '/');
+        $routeAndQuery = explode('?', $uri, limit: 2);
+        $route = '/' . trim($routeAndQuery[0], '/');
 
-		$request = new Request(
-			scheme: $scheme,
-			host: $host,
-			route: $route,
-            time: $_SERVER["REQUEST_TIME"] ?? -1,
-			query: $routeAndQuery[1] ?? null,
+        $request = new Request(
+            scheme: $scheme,
+            host: $host,
+            route: $route,
+            time: $_SERVER['REQUEST_TIME'] ?? -1,
+            query: $routeAndQuery[1] ?? null,
             port: (int) $port,
-		);
+        );
 
         cphpLog("Parsed request: {$request}");
 
         return $request;
-	}
+    }
 
-	/**
-	 * Take the core request and call the corresponding controller method if there is one
-	 * 
-	 * @throws InvalidResponseException
-	 * @throws PageNotFoundException
-	 */
-	public function handleRequest(?Request $request = null): void
-	{
-		$request ??= $this->coreRequest;
+    /**
+     * Take the core request and call the corresponding controller method if there is one
+     *
+     * @throws InvalidResponseException
+     * @throws PageNotFoundException
+     */
+    public function handleRequest(?Request $request = null): void
+    {
+        $request ??= $this->coreRequest;
 
         $siteMapEntry = $this->siteMap->findByRoute($request->route);
-        if ($siteMapEntry === null)
-        {
+        if ($siteMapEntry === null) {
             throw new PageNotFoundException($request->route, "Page not found '{$request->route}'", code: 404);
         }
 
-        $abstractController = new ($siteMapEntry->class)(router: $this);
+        $abstractController = new $siteMapEntry->class(router: $this);
         $response = $abstractController->{$siteMapEntry->method}();
-        if (!$response instanceof Response)
-        {
+        if (!$response instanceof Response) {
             throw new InvalidResponseException('Controllers should return ' . Response::class, code: 500);
         }
 
         $this->handleResponse($response);
-	}
+    }
 
-	private function handleResponse(Response $response): void
-	{
-		http_response_code($response->responseCode);
-		echo $response->content;
+    private function handleResponse(Response $response): void
+    {
+        http_response_code($response->responseCode);
+        echo $response->content;
 
-		/** @var ?Request[] $cachedRequests */
-		$cachedRequests = $this->routingCache->readCache(CacheLine::Requests, default: null);
-		if ($cachedRequests !== null)
-		{
-			$this->previousRequests = $cachedRequests;
-		}
+        /** @var ?Request[] $cachedRequests */
+        $cachedRequests = $this->routingCache->readCache(CacheLine::Requests, default: null);
+        if ($cachedRequests !== null) {
+            $this->previousRequests = $cachedRequests;
+        }
 
-		$this->previousRequests = [$this->coreRequest, ...\array_slice($this->previousRequests, 0, 9)];
+        $this->previousRequests = [$this->coreRequest, ...\array_slice($this->previousRequests, 0, 9)];
         cphpLog('Handling response');
-		$this->routingCache->writeCache(CacheLine::Requests, $this->previousRequests);
-	}
+        $this->routingCache->writeCache(CacheLine::Requests, $this->previousRequests);
+    }
 
-	// ! Util
+    // ! Util
 
-	private function drawFullSiteMap(): void
-	{
+    private function drawFullSiteMap(): void
+    {
         cphpLog('Drawing full site map');
-		foreach (self::CONTROLLER_DIRECTORIES as $directory)
-		{
-			$this->drawSiteMap($directory);
-		}
-		$this->routingCache->writeCache(CacheLine::SiteMap, $this->siteMap);
-	}
+        foreach (self::CONTROLLER_DIRECTORIES as $directory) {
+            $this->drawSiteMap($directory);
+        }
+        $this->routingCache->writeCache(CacheLine::SiteMap, $this->siteMap);
+    }
 
-	/**
-	 * @throws RouteAlreadyExistsException
-	 */
-	private function drawSiteMap(string $searchSpace): void
-	{
-		$iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($searchSpace));
+    /**
+     * @throws RouteAlreadyExistsException
+     */
+    private function drawSiteMap(string $searchSpace): void
+    {
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($searchSpace));
 
-		/** @var \SplFileInfo $file */
-		foreach ($iterator as $file)
-		{
-			if ($file->isDir() || $file->getExtension() !== "php")
-			{
-				continue;
-			}
+        /** @var \SplFileInfo $file */
+        foreach ($iterator as $file) {
+            if ($file->isDir() || $file->getExtension() !== 'php') {
+                continue;
+            }
 
-			$fullPath = $file->getRealPath();
-			if ($fullPath === false)
-			{
-				continue;
-			}
+            $fullPath = $file->getRealPath();
+            if ($fullPath === false) {
+                continue;
+            }
 
-			$classname = pathToClass($fullPath);
-			if (!class_exists($classname))
-			{
-				continue;
-			}
+            $classname = pathToClass($fullPath);
+            if (!class_exists($classname)) {
+                continue;
+            }
 
-			try
-			{
-				$reflectionClass = new \ReflectionClass($classname);
-			}
-			catch (\ReflectionException)
-			{
-				continue;
-			}
+            try {
+                $reflectionClass = new \ReflectionClass($classname);
+            } catch (\ReflectionException) {
+                continue;
+            }
 
-			$parentClass = $reflectionClass->getParentClass();
-			if ($parentClass === false)
-			{
-				continue;
-			}
+            $parentClass = $reflectionClass->getParentClass();
+            if ($parentClass === false) {
+                continue;
+            }
 
-			if ($parentClass->name !== AbstractController::class)
-			{
-				continue;
-			}
+            if ($parentClass->name !== AbstractController::class) {
+                continue;
+            }
 
-			foreach ($reflectionClass->getMethods() as $method)
-			{
-				foreach ($method->getAttributes(Route::class) as $routeAttribute)
-				{
-					$routeAttributeInstance = $routeAttribute->newInstance();
-					$route = $routeAttributeInstance->route;
-					$name = $routeAttributeInstance->name;
+            foreach ($reflectionClass->getMethods() as $method) {
+                foreach ($method->getAttributes(Route::class) as $routeAttribute) {
+                    $routeAttributeInstance = $routeAttribute->newInstance();
+                    $route = $routeAttributeInstance->route;
+                    $name = $routeAttributeInstance->name;
 
-					$siteMapEntry = new SiteMapEntry(
-						route: $route,
-						name: $name,
-						class: $reflectionClass->name,
-						method: $method->name,
-					);
+                    $siteMapEntry = new SiteMapEntry(
+                        route: $route,
+                        name: $name,
+                        class: $reflectionClass->name,
+                        method: $method->name,
+                    );
 
-                    if (!$this->siteMap->addSiteMapEntry($siteMapEntry))
-                    {
-                        throw new RouteAlreadyExistsException(route: $route, name: $name, message: 'Route already exists', code: 500);
+                    if (!$this->siteMap->addSiteMapEntry($siteMapEntry)) {
+                        throw new RouteAlreadyExistsException(
+                            route: $route,
+                            name: $name,
+                            message: 'Route already exists',
+                            code: 500,
+                        );
                     }
-				}
-			}
-		}
-	}
+                }
+            }
+        }
+    }
 }

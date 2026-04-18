@@ -24,41 +24,39 @@ class Component implements \Stringable
         return new self(...$properties);
     }
 
-	public function __tostring(): string
-	{
-		return implode('', $this->sockets);
-	}
+    public function __tostring(): string
+    {
+        return implode('', $this->sockets);
+    }
 
-	public function render(): string
-	{
-		return $this->__tostring();
-	}
+    public function render(): string
+    {
+        return $this->__tostring();
+    }
 
     public function fill(string $name, string|self $value): self
     {
-		if (!\array_key_exists($name, $this->sockets))
-		{
-			cphpLog(
-				"Attempted to fill an undefined socket '{$name}' in component '{$this->name}'",
-				level: 'warning',
-				channel: \LoggingChannels::Templating,
-			);
+        if (!\array_key_exists($name, $this->sockets)) {
+            cphpLog(
+                "Attempted to fill an undefined socket '{$name}' in component '{$this->name}'",
+                level: 'warning',
+                channel: \LoggingChannels::Templating,
+            );
 
-			return $this;
-		}
+            return $this;
+        }
 
-		if (str_starts_with($name, '_chunk_'))
-		{
-			cphpLog(
-				"Potentially attempting to fill generated socket '{$name}'",
-				level: 'warning',
-				channel: \LoggingChannels::Templating,
-			);
-		}
+        if (str_starts_with($name, '_chunk_')) {
+            cphpLog(
+                "Potentially attempting to fill generated socket '{$name}'",
+                level: 'warning',
+                channel: \LoggingChannels::Templating,
+            );
+        }
 
-		$this->sockets[$name] = $value;
+        $this->sockets[$name] = $value;
 
-		return $this;
+        return $this;
     }
 
     /**
@@ -66,25 +64,23 @@ class Component implements \Stringable
      */
     private function findSockets(): array
     {
-		cphpLog("Computing sockets for component '{$this->name}'", channel: \LoggingChannels::Templating);
+        cphpLog("Computing sockets for component '{$this->name}'", channel: \LoggingChannels::Templating);
 
-		$matches = [];
-		preg_match_all(self::VARIABLE_PATTERN, $this->body, $matches);
+        $matches = [];
+        preg_match_all(self::VARIABLE_PATTERN, $this->body, $matches);
 
-		$result = [];
-		$content = $this->body;
-		for ($i = 0; $i < \count($matches[0]); $i++)
-		{
-			$split = explode($matches[0][$i], $content);
-			$result["_chunk_{$i}"] = $split[0];
-			$result[$matches['name'][$i]] = '';
-			if (\count($split) > 1)
-			{
-				$content = $split[1];
-			}
-		}
-		$result['_chunk_-1'] = $content;
-		
+        $result = [];
+        $content = $this->body;
+        for ($i = 0; $i < \count($matches[0]); $i++) {
+            $split = explode($matches[0][$i], $content);
+            $result["_chunk_{$i}"] = $split[0];
+            $result[$matches['name'][$i]] = '';
+            if (\count($split) > 1) {
+                $content = $split[1];
+            }
+        }
+        $result['_chunk_-1'] = $content;
+
         return $result;
     }
 }

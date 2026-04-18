@@ -27,20 +27,17 @@ abstract class AbstractTemplate
     protected function loadFile(string $filename, bool $absolutePath = false): array
     {
         $path = $absolutePath ? $filename : CPHP_COMPONENTS_DIR . "/{$filename}";
-        if (!file_exists($path))
-        {
+        if (!file_exists($path)) {
             throw new FileNotFoundException(message: "Cannot find component at '{$path}'", code: 404);
         }
 
         /** @var array<string, Component> $components */
         $components = [];
-        if (!CPHP_IS_DEV)
-        {
+        if (!CPHP_IS_DEV) {
             $components = $this->componentCache->readCache(CacheLine::Components, []);
         }
 
-        if (CPHP_IS_DEV || $components === [])
-        {
+        if (CPHP_IS_DEV || $components === []) {
             $components = $this->buildComponents(file_get_contents($path));
             $this->componentCache->writeCache(CacheLine::Components, $components);
         }
@@ -57,8 +54,7 @@ abstract class AbstractTemplate
         $components = [];
         $matches = [];
         preg_match_all(self::COMPONENTS_PATTERN, $content, $matches);
-        for ($i = 0; $i < \count($matches['name']); $i++)
-        {
+        for ($i = 0; $i < \count($matches['name']); $i++) {
             $name = $matches['name'][$i];
             $body = trim($matches['component'][$i]);
             $components[$matches['name'][$i]] = new Component($name, $body);

@@ -8,8 +8,8 @@ use ComponentPHP\Cache\AbstractCache;
 
 class RoutingCache extends AbstractCache
 {
-	protected function getDir(): string
-	{
-		return __DIR__;
-	}
+    protected function getDir(): string
+    {
+        return __DIR__;
+    }
 }

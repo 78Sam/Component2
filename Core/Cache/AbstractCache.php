@@ -15,8 +15,7 @@ abstract class AbstractCache
 
     public function __destruct()
     {
-        foreach ($this->store as $file => $cachedValue)
-        {
+        foreach ($this->store as $file => $cachedValue) {
             file_put_contents($file, self::CACHE_LINE_HEADER . var_export($cachedValue, return: true) . ";\n");
         }
     }
@@ -24,13 +23,11 @@ abstract class AbstractCache
     public function readCache(CacheLine $cacheLine, mixed $default = null)
     {
         $path = $cacheLine->path($this->getDir());
-        if (\array_key_exists($path, $this->store))
-        {
+        if (\array_key_exists($path, $this->store)) {
             return $this->store[$cacheLine->value];
         }
 
-        if (!file_exists($path))
-        {
+        if (!file_exists($path)) {
             cphpLog("Failed to find cache file {$path}", level: 'warning');
 
             return $default;

@@ -10,9 +10,7 @@ excludes = []
 
 [formatter]
 print-width = 120
-tab-width = 4
-use-tabs = true
-control-brace-style = "next-line"
+method-chain-semicolon-on-next-line = true
 
 [linter]
 integrations = []

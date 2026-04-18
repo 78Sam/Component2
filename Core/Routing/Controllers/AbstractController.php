@@ -9,8 +9,7 @@ use ComponentPHP\Routing\Router;
 
 abstract class AbstractController
 {
-	final public function __construct(
-		protected readonly Router $router,
-	) {
-	}
+    final public function __construct(
+        protected readonly Router $router,
+    ) {}
 }

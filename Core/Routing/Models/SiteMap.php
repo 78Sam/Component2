@@ -10,11 +10,10 @@ class SiteMap
      * @param array<string, SiteMapEntry> $routes
      * @param array<string, SiteMapEntry> $names
      */
-	public function __construct(
-		public array $routes = [],
+    public function __construct(
+        public array $routes = [],
         public array $names = [],
-	) {
-	}
+    ) {}
 
     public static function __set_state($properties)
     {
@@ -23,13 +22,11 @@ class SiteMap
 
     public function addSiteMapEntry(SiteMapEntry $siteMapEntry): bool
     {
-        if (\array_key_exists($siteMapEntry->route, $this->routes))
-        {
+        if (\array_key_exists($siteMapEntry->route, $this->routes)) {
             return false;
         }
 
-        if (\array_key_exists($siteMapEntry->name, $this->names))
-        {
+        if (\array_key_exists($siteMapEntry->name, $this->names)) {
             return false;
         }
 

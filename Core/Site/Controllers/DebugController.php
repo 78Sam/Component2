@@ -50,13 +50,12 @@ class DebugController extends AbstractController
         return new Response('phpinfo');
     }
 
-	// #[Route(route: '/_debug/phpinfo', name: 'debug_phpinfo')]
-	// public function phpInfo()
-	// {
-	// 	ob_start();
-	// 	phpinfo();
-	// 	$phpInfo = ob_get_clean();
-
-	// 	return new Response($phpInfo);
-	// }
+    // #[Route(route: '/_debug/phpinfo', name: 'debug_phpinfo')]
+    // public function phpInfo()
+    // {
+    // 	ob_start();
+    // 	phpinfo();
+    // 	$phpInfo = ob_get_clean();
+    // 	return new Response($phpInfo);
+    // }
 }
