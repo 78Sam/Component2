@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Components;
 
-use ComponentPHP\Cache\CacheLine;
 use ComponentPHP\Cache\Components\ComponentCache;
 use ComponentPHP\Components\Exceptions\FileNotFoundException;
 use ComponentPHP\Components\Models\Component;
@@ -20,6 +19,8 @@ abstract class AbstractTemplate
         $this->componentCache = new ComponentCache();
     }
 
+    // abstract public function draw(array $arguments = []): string|Component;
+
     /**
      * @throws FileNotFoundException
      * @return array<string, Component>
@@ -34,12 +35,12 @@ abstract class AbstractTemplate
         /** @var array<string, Component> $components */
         $components = [];
         if (!CPHP_IS_DEV) {
-            $components = $this->componentCache->readCache(CacheLine::Components, []);
+            $components = $this->componentCache->readCache(pathinfo($filename, PATHINFO_FILENAME), []);
         }
 
         if (CPHP_IS_DEV || $components === []) {
             $components = $this->buildComponents(file_get_contents($path));
-            $this->componentCache->writeCache(CacheLine::Components, $components);
+            $this->componentCache->writeCache(pathinfo($filename, PATHINFO_FILENAME), $components);
         }
 
         return $components;

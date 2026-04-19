@@ -2,16 +2,14 @@
 
 declare(strict_types=1);
 
-use ComponentPHP\Logging\Channels\LoggingChannels;
-
 /**
  * @return array{file: string, line: int}
  */
-function get_debug_backtrace(): array
+function get_debug_backtrace(int $step = 2): array
 {
     /** @var array[] $backtrace */
-    $backtrace = debug_backtrace(limit: 2);
-    if (count($backtrace) < 2) {
+    $backtrace = debug_backtrace(limit: $step);
+    if (count($backtrace) < $step) {
         return [
             'file' => 'unknown_file',
             'line' => -1,
@@ -19,8 +17,8 @@ function get_debug_backtrace(): array
     }
 
     return [
-        'file' => $backtrace[1]['file'] ?? 'unknown_file',
-        'line' => $backtrace[1]['line'] ?? -1,
+        'file' => $backtrace[$step - 1]['file'] ?? 'unknown_file',
+        'line' => $backtrace[$step - 1]['line'] ?? -1,
     ];
 }
 
@@ -40,27 +38,7 @@ function dump(mixed ...$values): void
     echo "\n\n</pre>";
 }
 
-function cphp_log(string $message, string $level = 'info', LoggingChannels $channel = LoggingChannels::Core): void
-{
-    $debugFrame = get_debug_backtrace();
-    $file = $debugFrame['file'];
-    $line = $debugFrame['line'];
-
-    $datetime = new \DateTime(timezone: new \DateTimeZone(CPHP_TIMEZONE));
-    $datetimeFormatted = $datetime->format('d-m-Y H:i:s');
-
-    $dir = CPHP_LOG_DIR . "/{$channel->value}";
-    if (!file_exists($dir)) {
-        mkdir($dir, recursive: true);
-    }
-
-    $log = "{$datetimeFormatted} {$file}::{$line} | [{$level}] {$message}";
-
-    // TODO: Is this essentially performing I/O for each log, could be costly
-    error_log("{$log}\n", message_type: 3, destination: "{$dir}/log.log");
-}
-
-function path_to_class(string $path)
+function path_to_class(string $path): string
 {
     $class = $path
         |> (fn($val) => str_replace(DIRECTORY_SEPARATOR, '/', $val))
@@ -70,9 +48,7 @@ function path_to_class(string $path)
 
     foreach (CPHP_NAMESPACE_ALIASES as $folder => $namespace) {
         if (str_starts_with($class, $folder)) {
-            cphp_log("replace: {$class}", channel: LoggingChannels::Router);
-            $class = $namespace . substr($class, strlen($folder));
-            cphp_log("After: {$class}", channel: LoggingChannels::Router);
+            return $namespace . substr($class, strlen($folder));
         }
     }
 

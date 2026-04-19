@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Components\Models;
 
+use ComponentPHP\Logging\Logger;
+use ComponentPHP\Logging\Models\LoggingChannels;
+use ComponentPHP\Logging\Models\LoggingLevel;
+
 class Component implements \Stringable
 {
     private const string VARIABLE_PATTERN = '/!@\(\s*\$(?<name>[a-zA-Z_]+\w*)\s*\)/';
 
-    /** @var array<string, string|self> $sockets */
+    /** @var array<string, string|Component> $sockets */
     private array $sockets = [];
 
     public function __construct(
@@ -34,23 +38,23 @@ class Component implements \Stringable
         return $this->__tostring();
     }
 
-    public function fill(string $name, string|self $value): self
+    public function fill(string $name, string|Component $value): self
     {
         if (!\array_key_exists($name, $this->sockets)) {
-            cphp_log(
+            Logger::singleLog(
                 "Attempted to fill an undefined socket '{$name}' in component '{$this->name}'",
-                level: 'warning',
-                channel: \LoggingChannels::Templating,
+                level: LoggingLevel::Warning,
+                channel: LoggingChannels::Templating,
             );
 
             return $this;
         }
 
         if (str_starts_with($name, '_chunk_')) {
-            cphp_log(
+            Logger::singleLog(
                 "Potentially attempting to fill generated socket '{$name}'",
-                level: 'warning',
-                channel: \LoggingChannels::Templating,
+                level: LoggingLevel::Warning,
+                channel: LoggingChannels::Templating,
             );
         }
 
@@ -64,7 +68,7 @@ class Component implements \Stringable
      */
     private function findSockets(): array
     {
-        cphp_log("Computing sockets for component '{$this->name}'", channel: \LoggingChannels::Templating);
+        Logger::singleLog("Computing sockets for component '{$this->name}'", channel: LoggingChannels::Templating);
 
         $matches = [];
         preg_match_all(self::VARIABLE_PATTERN, $this->body, $matches);

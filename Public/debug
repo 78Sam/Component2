@@ -82,13 +82,19 @@ $_cacheLineData = array (
   \ComponentPHP\Components\Models\Component::__set_state(array(
      'sockets' => 
     array (
-      '_chunk_-1' => '<div>
-
+      '_chunk_0' => '<div>
+    <h3>',
+      'route' => '',
+      '_chunk_1' => '</h3>
+    <p>',
+      'scheme' => '',
+      '_chunk_-1' => '</p>
 </div>',
     ),
      'name' => 'request',
      'body' => '<div>
-
+    <h3>!@( $route )</h3>
+    <p>!@( $scheme )</p>
 </div>',
   )),
 );

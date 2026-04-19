@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Routing;
 
-use ComponentPHP\Cache\CacheLine;
 use ComponentPHP\Cache\Routing\RoutingCache;
+use ComponentPHP\Logging\Logger;
+use ComponentPHP\Logging\Models\LoggingChannels;
+use ComponentPHP\Logging\Models\LoggingLevel;
 use ComponentPHP\Routing\Attributes\Route;
 use ComponentPHP\Routing\Controllers\AbstractController;
 use ComponentPHP\Routing\Exceptions\InvalidResponseException;
@@ -26,18 +28,21 @@ class Router
         CPHP_ROOT_DIR . '/Core/Site/Controllers',
     ];
 
+    public const int MAX_CACHED_REQUESTS = 10;
+
     /** @var Request[] $previousRequests */
     public array $previousRequests = [];
 
     private ?Request $coreRequest = null;
-
-    private SiteMap $siteMap;
+    private Logger $logger;
     private RoutingCache $routingCache;
+    private SiteMap $siteMap;
 
     public function __construct()
     {
-        $this->siteMap = new SiteMap();
+        $this->logger = new Logger(channel: LoggingChannels::Router);
         $this->routingCache = new RoutingCache();
+        $this->siteMap = new SiteMap();
     }
 
     /**
@@ -45,7 +50,7 @@ class Router
      */
     public function init()
     {
-        cphp_log('Starting router');
+        $this->logger->log('Starting router');
         $this->coreRequest = $this->parseCoreRequest();
 
         if (CPHP_IS_DEV) {
@@ -56,9 +61,9 @@ class Router
 
         // If we are running in production, read the sitemap from cache
 
-        $cacheValue = $this->routingCache->readCache(CacheLine::SiteMap);
+        $cacheValue = $this->routingCache->readCache('SiteMap');
         if ($cacheValue === null) {
-            cphp_log('Failed to read cached site map for prod build', level: 'warning');
+            $this->logger->log('Failed to read cached site map for prod build', level: LoggingLevel::Warning);
             $this->drawFullSiteMap();
 
 			return;
@@ -102,10 +107,10 @@ class Router
             route: $route,
             time: $_SERVER['REQUEST_TIME'] ?? -1,
             query: $routeAndQuery[1] ?? null,
-            port: (int) $port,
+            port: $port,
         );
 
-        cphp_log("Parsed request: {$request}");
+        $this->logger->log("Parsed request: {$request}");
 
         return $request;
     }
@@ -116,7 +121,7 @@ class Router
      * @throws InvalidResponseException
      * @throws PageNotFoundException
      */
-    public function handleRequest(?Request $request = null): void
+    public function handleRequest(?Request $request = null): Response
     {
         $request ??= $this->coreRequest;
 
@@ -125,40 +130,44 @@ class Router
             throw new PageNotFoundException($request->route, "Page not found '{$request->route}'", code: 404);
         }
 
-        $abstractController = new $siteMapEntry->class(router: $this);
+        $this->logger->log("Calling route {$siteMapEntry->class}::{$siteMapEntry->method}");
+
+        $abstractController = new $siteMapEntry->class(router: $this, request: $request);
         $response = $abstractController->{$siteMapEntry->method}();
         if (!$response instanceof Response) {
             throw new InvalidResponseException('Controllers should return ' . Response::class, code: 500);
         }
 
-        $this->handleResponse($response);
+        return $response;
     }
 
-    private function handleResponse(Response $response): void
+    public function handleResponse(Response $response): void
     {
+        $this->logger->log('Handling response');
+
         http_response_code($response->responseCode);
         echo $response->content;
 
         /** @var ?Request[] $cachedRequests */
-        $cachedRequests = $this->routingCache->readCache(CacheLine::Requests, default: null);
+        $cachedRequests = $this->routingCache->readCache('Requests', default: null);
         if ($cachedRequests !== null) {
             $this->previousRequests = $cachedRequests;
         }
 
-        $this->previousRequests = [$this->coreRequest, ...\array_slice($this->previousRequests, 0, 9)];
-        cphp_log('Handling response');
-        $this->routingCache->writeCache(CacheLine::Requests, $this->previousRequests);
+        $this->previousRequests = [$this->coreRequest, ...\array_slice($this->previousRequests, 0, self::MAX_CACHED_REQUESTS - 1)];
+        $this->routingCache->writeCache('Requests', $this->previousRequests);
     }
 
     // ! Util
 
     private function drawFullSiteMap(): void
     {
-        cphp_log('Drawing full site map');
+        $this->logger->log('Drawing full site map');
+
         foreach (self::CONTROLLER_DIRECTORIES as $directory) {
             $this->drawSiteMap($directory);
         }
-        $this->routingCache->writeCache(CacheLine::SiteMap, $this->siteMap);
+        $this->routingCache->writeCache('SiteMap', $this->siteMap);
     }
 
     /**

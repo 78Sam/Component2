@@ -10,8 +10,8 @@ $_cacheLineData = array (
     ),
      'scheme' => 'http',
      'host' => 'localhost',
-     'route' => '/_debug',
-     'time' => 1776621034,
+     'route' => '/_debug/php-info',
+     'time' => 1776623842,
      'query' => NULL,
      'port' => 8000,
   )),
@@ -22,8 +22,8 @@ $_cacheLineData = array (
     ),
      'scheme' => 'http',
      'host' => 'localhost',
-     'route' => '/_debug',
-     'time' => 1776621029,
+     'route' => '/_debug/requests',
+     'time' => 1776623836,
      'query' => NULL,
      'port' => 8000,
   )),
@@ -34,8 +34,8 @@ $_cacheLineData = array (
     ),
      'scheme' => 'http',
      'host' => 'localhost',
-     'route' => '/_debug',
-     'time' => 1776621013,
+     'route' => '/_debug/php-info',
+     'time' => 1776623835,
      'query' => NULL,
      'port' => 8000,
   )),
@@ -47,7 +47,7 @@ $_cacheLineData = array (
      'scheme' => 'http',
      'host' => 'localhost',
      'route' => '/_debug',
-     'time' => 1776621008,
+     'time' => 1776623829,
      'query' => NULL,
      'port' => 8000,
   )),
@@ -59,7 +59,7 @@ $_cacheLineData = array (
      'scheme' => 'http',
      'host' => 'localhost',
      'route' => '/_debug',
-     'time' => 1776620995,
+     'time' => 1776623828,
      'query' => NULL,
      'port' => 8000,
   )),
@@ -71,7 +71,55 @@ $_cacheLineData = array (
      'scheme' => 'http',
      'host' => 'localhost',
      'route' => '/_debug',
-     'time' => 1776620983,
+     'time' => 1776623827,
+     'query' => NULL,
+     'port' => 8000,
+  )),
+  6 => 
+  \ComponentPHP\Routing\Models\Request::__set_state(array(
+     'queryParameters' => 
+    array (
+    ),
+     'scheme' => 'http',
+     'host' => 'localhost',
+     'route' => '/_debug',
+     'time' => 1776623826,
+     'query' => NULL,
+     'port' => 8000,
+  )),
+  7 => 
+  \ComponentPHP\Routing\Models\Request::__set_state(array(
+     'queryParameters' => 
+    array (
+    ),
+     'scheme' => 'http',
+     'host' => 'localhost',
+     'route' => '/_debug',
+     'time' => 1776623825,
+     'query' => NULL,
+     'port' => 8000,
+  )),
+  8 => 
+  \ComponentPHP\Routing\Models\Request::__set_state(array(
+     'queryParameters' => 
+    array (
+    ),
+     'scheme' => 'http',
+     'host' => 'localhost',
+     'route' => '/_debug/requests',
+     'time' => 1776623813,
+     'query' => NULL,
+     'port' => 8000,
+  )),
+  9 => 
+  \ComponentPHP\Routing\Models\Request::__set_state(array(
+     'queryParameters' => 
+    array (
+    ),
+     'scheme' => 'http',
+     'host' => 'localhost',
+     'route' => '/_debug/requests',
+     'time' => 1776623812,
      'query' => NULL,
      'port' => 8000,
   )),

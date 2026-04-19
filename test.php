@@ -1,4 +1,15 @@
 <?php
 
-$x = 'abc';
-print_r(explode('c', $x));
+class X
+{
+    public function __construct(
+        public int $p,
+    ) {
+    }
+}
+
+$p = [
+    'hi' => X::__set_state(['p' => 12]),
+];
+
+print_r($p);

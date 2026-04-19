@@ -1,12 +1,11 @@
 {
-    "name": "sammccormack/component2",
-    "description": "ComponentPHP webframework 2",
+    "name": "sam/component2",
+    "description": "ComponentPHP 2",
     "type": "library",
     "autoload": {
         "psr-4": {
-            "ComponentPHP\\": "Core/",
-			"ComponentPHP\\Logging\\Channels\\": "Core/Utility/",
-			"App\\": "App/"
+			"App\\": "App/",
+            "ComponentPHP\\": "Core/"
         },
 		"files": [
 			"Core/Utility/Functions.php",
@@ -16,7 +15,7 @@
     "authors": [
         {
             "name": "Sam",
-            "email": "samvjsmccormack@gmail.com"
+            "email": "samspamvjs@gmail.com"
         }
     ],
     "require": {}

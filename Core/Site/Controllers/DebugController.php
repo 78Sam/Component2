@@ -4,38 +4,28 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Site\Controllers;
 
-use ComponentPHP\Cache\CacheLine;
 use ComponentPHP\Cache\Routing\RoutingCache;
 use ComponentPHP\Routing\Attributes\Route;
 use ComponentPHP\Routing\Controllers\AbstractController;
-use ComponentPHP\Routing\Models\Request;
 use ComponentPHP\Routing\Models\Response;
 use ComponentPHP\Site\Views\DebugView;
 
-class DebugController extends AbstractController
+final class DebugController extends AbstractController
 {
     #[Route(route: '/_debug', name: 'debug_home')]
     public function home(): Response
     {
-        // /** @var Request[] $recentRequests */
-        // $recentRequests = RoutingCache::readCache(CacheLine::Requests, default: []);
+        $routingCache = new RoutingCache();
 
-        // ob_start();
-        // foreach ($recentRequests as $request)
-        // {
-        //     var_dump($request);
-        // }
-
-        // $content = ob_get_clean();
-
-        // return new Response($content);
-        return new Response(DebugView::render());
+        return new Response((new DebugView())->mainPage($routingCache->readCache('Requests', [])));
     }
 
     #[Route(route: '/_debug/requests', name: 'debug_requests')]
     public function getRequests(): Response
     {
-        return new Response('requests');
+        $routingCache = new RoutingCache();
+
+        return new Response((new DebugView())->requests($routingCache->readCache('Requests', [])));
     }
 
     #[Route(route: '/_debug/site-map', name: 'debug_siteMap')]

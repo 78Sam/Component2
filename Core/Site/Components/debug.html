@@ -1,3 +1,4 @@
+<component !@( #component|mainPage )>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -27,8 +28,16 @@
                 </div>
             </div>
             <div id="main-content">
-
+                !@( $content )
             </div>
         </main>
     </body>
 </html>
+</component>
+
+<component !@( #component|request )>
+<div>
+    <h3>!@( $route )</h3>
+    <p>!@( $scheme )</p>
+</div>
+</component>
