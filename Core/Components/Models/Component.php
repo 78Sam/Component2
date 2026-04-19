@@ -37,7 +37,7 @@ class Component implements \Stringable
     public function fill(string $name, string|self $value): self
     {
         if (!\array_key_exists($name, $this->sockets)) {
-            cphpLog(
+            cphp_log(
                 "Attempted to fill an undefined socket '{$name}' in component '{$this->name}'",
                 level: 'warning',
                 channel: \LoggingChannels::Templating,
@@ -47,7 +47,7 @@ class Component implements \Stringable
         }
 
         if (str_starts_with($name, '_chunk_')) {
-            cphpLog(
+            cphp_log(
                 "Potentially attempting to fill generated socket '{$name}'",
                 level: 'warning',
                 channel: \LoggingChannels::Templating,
@@ -64,7 +64,7 @@ class Component implements \Stringable
      */
     private function findSockets(): array
     {
-        cphpLog("Computing sockets for component '{$this->name}'", channel: \LoggingChannels::Templating);
+        cphp_log("Computing sockets for component '{$this->name}'", channel: \LoggingChannels::Templating);
 
         $matches = [];
         preg_match_all(self::VARIABLE_PATTERN, $this->body, $matches);

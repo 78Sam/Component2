@@ -13,7 +13,7 @@ class Kernel
     public function __construct()
     {
         $mode = CPHP_IS_DEV ? 'DEV' : 'PROD';
-        cphpLog("Starting Kernel in {$mode} mode");
+        cphp_log("Starting Kernel in {$mode} mode");
         try {
             $this->router = new Router();
             $this->router->init();
@@ -25,7 +25,7 @@ class Kernel
 
     private function except(\Throwable $e): never
     {
-        cphpLog($e->getMessage(), 'error');
+        cphp_log($e->getMessage(), 'error');
         dump($e);
 
         exit();

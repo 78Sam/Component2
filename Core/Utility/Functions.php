@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use ComponentPHP\Logging\Channels\LoggingChannels;
+
 /**
  * @return array{file: string, line: int}
  */
-function getDebugBacktrace(): array
+function get_debug_backtrace(): array
 {
     /** @var array[] $backtrace */
     $backtrace = debug_backtrace(limit: 2);
@@ -24,7 +26,7 @@ function getDebugBacktrace(): array
 
 function dump(mixed ...$values): void
 {
-    $debugFrame = getDebugBacktrace();
+    $debugFrame = get_debug_backtrace();
     $file = $debugFrame['file'];
     $line = $debugFrame['line'];
 
@@ -38,17 +40,9 @@ function dump(mixed ...$values): void
     echo "\n\n</pre>";
 }
 
-// TODO: Change channel used by logging function to expect enum not string
-enum LoggingChannels: string
+function cphp_log(string $message, string $level = 'info', LoggingChannels $channel = LoggingChannels::Core): void
 {
-    case Core = 'Core';
-    case Templating = 'Templating';
-    case Router = 'Router';
-}
-
-function cphpLog(string $message, string $level = 'info', LoggingChannels $channel = LoggingChannels::Core): void
-{
-    $debugFrame = getDebugBacktrace();
+    $debugFrame = get_debug_backtrace();
     $file = $debugFrame['file'];
     $line = $debugFrame['line'];
 
@@ -66,7 +60,7 @@ function cphpLog(string $message, string $level = 'info', LoggingChannels $chann
     error_log("{$log}\n", message_type: 3, destination: "{$dir}/log.log");
 }
 
-function pathToClass(string $path)
+function path_to_class(string $path)
 {
     $class = $path
         |> (fn($val) => str_replace(DIRECTORY_SEPARATOR, '/', $val))
@@ -76,9 +70,9 @@ function pathToClass(string $path)
 
     foreach (CPHP_NAMESPACE_ALIASES as $folder => $namespace) {
         if (str_starts_with($class, $folder)) {
-            cphpLog("replace: {$class}", channel: LoggingChannels::Router);
+            cphp_log("replace: {$class}", channel: LoggingChannels::Router);
             $class = $namespace . substr($class, strlen($folder));
-            cphpLog("After: {$class}", channel: LoggingChannels::Router);
+            cphp_log("After: {$class}", channel: LoggingChannels::Router);
         }
     }
 

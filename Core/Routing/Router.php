@@ -45,7 +45,7 @@ class Router
      */
     public function init()
     {
-        cphpLog('Starting router');
+        cphp_log('Starting router');
         $this->coreRequest = $this->parseCoreRequest();
 
         if (CPHP_IS_DEV) {
@@ -58,11 +58,13 @@ class Router
 
         $cacheValue = $this->routingCache->readCache(CacheLine::SiteMap);
         if ($cacheValue === null) {
-            cphpLog('Failed to read cached site map for prod build', level: 'warning');
+            cphp_log('Failed to read cached site map for prod build', level: 'warning');
             $this->drawFullSiteMap();
-        } else {
-            $this->siteMap = $cacheValue;
+
+			return;
         }
+
+		$this->siteMap = $cacheValue;
     }
 
     /**
@@ -103,7 +105,7 @@ class Router
             port: (int) $port,
         );
 
-        cphpLog("Parsed request: {$request}");
+        cphp_log("Parsed request: {$request}");
 
         return $request;
     }
@@ -144,7 +146,7 @@ class Router
         }
 
         $this->previousRequests = [$this->coreRequest, ...\array_slice($this->previousRequests, 0, 9)];
-        cphpLog('Handling response');
+        cphp_log('Handling response');
         $this->routingCache->writeCache(CacheLine::Requests, $this->previousRequests);
     }
 
@@ -152,7 +154,7 @@ class Router
 
     private function drawFullSiteMap(): void
     {
-        cphpLog('Drawing full site map');
+        cphp_log('Drawing full site map');
         foreach (self::CONTROLLER_DIRECTORIES as $directory) {
             $this->drawSiteMap($directory);
         }
@@ -177,7 +179,7 @@ class Router
                 continue;
             }
 
-            $classname = pathToClass($fullPath);
+            $classname = path_to_class($fullPath);
             if (!class_exists($classname)) {
                 continue;
             }

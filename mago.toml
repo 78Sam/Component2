@@ -6,7 +6,7 @@ php-version = "8.5.0"
 workspace = "."
 paths = ["App/", "Core/"]
 includes = ["vendor"]
-excludes = []
+excludes = ["Core/Cache/**/Lines/**"]
 
 [formatter]
 print-width = 120

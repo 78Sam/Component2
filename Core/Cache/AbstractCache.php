@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Cache;
 
-use ComponentPHP\Cache\CacheLine;
-
 abstract class AbstractCache
 {
     protected const string CACHE_LINE_HEADER = "<?php\n\ndeclare(strict_types=1);\n\n\$_cacheLineData = ";
@@ -28,7 +26,7 @@ abstract class AbstractCache
         }
 
         if (!file_exists($path)) {
-            cphpLog("Failed to find cache file {$path}", level: 'warning');
+            cphp_log("Failed to find cache file {$path}", level: 'warning');
 
             return $default;
         }
