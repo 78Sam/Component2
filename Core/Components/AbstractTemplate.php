@@ -5,28 +5,39 @@ declare(strict_types=1);
 namespace ComponentPHP\Components;
 
 use ComponentPHP\Cache\Components\ComponentCache;
+use ComponentPHP\Components\Exceptions\ComponentNotFoundException;
 use ComponentPHP\Components\Exceptions\FileNotFoundException;
 use ComponentPHP\Components\Models\Component;
+use ComponentPHP\Logging\Logger;
+use ComponentPHP\Logging\Models\LoggingChannels;
 
 abstract class AbstractTemplate
 {
     private const string COMPONENTS_PATTERN = '/<component\s+!@\(\s*#component\|(?<name>\w+)\s*\)>(?<component>.*?)<\/component>/s';
 
+    protected Logger $logger;
+    /** @var <string, array<string, Component>> $components */
+    private array $components = [];
     private ComponentCache $componentCache;
 
     public function __construct()
     {
+        $this->logger = new Logger(LoggingChannels::Templating);
         $this->componentCache = new ComponentCache();
+        $this->loadFiles();
     }
 
-    // abstract public function draw(array $arguments = []): string|Component;
+    abstract protected function loadFiles(): void;
 
     /**
      * @throws FileNotFoundException
-     * @return array<string, Component>
      */
-    protected function loadFile(string $filename, bool $absolutePath = false): array
+    protected function loadFile(string $filename, bool $absolutePath = false): void
     {
+        if (\array_key_exists($filename, $this->components)) {
+            return;
+        }
+
         $path = $absolutePath ? $filename : CPHP_COMPONENTS_DIR . "/{$filename}";
         if (!file_exists($path)) {
             throw new FileNotFoundException(message: "Cannot find component at '{$path}'", code: 404);
@@ -43,7 +54,23 @@ abstract class AbstractTemplate
             $this->componentCache->writeCache(pathinfo($filename, PATHINFO_FILENAME), $components);
         }
 
-        return $components;
+        $this->components[$filename] = $components;
+    }
+
+    /**
+     * Get a clone of the specified component
+     *
+     * @throws ComponentNotFoundException
+     */
+    public function get(string $component): Component
+    {
+        foreach ($this->components as $file => $components) {
+            if (\array_key_exists($component, $components)) {
+                return clone $components[$component];
+            }
+        }
+
+        throw new ComponentNotFoundException("Unable to find component '{$component}'");
     }
 
     /**

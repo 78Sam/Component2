@@ -11,6 +11,7 @@ excludes = ["Core/Cache/**/Lines/**"]
 [formatter]
 print-width = 120
 method-chain-semicolon-on-next-line = true
+preserve-breaking-member-access-chain = true
 
 [linter]
 integrations = []

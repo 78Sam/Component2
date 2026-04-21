@@ -7,22 +7,24 @@ namespace ComponentPHP\Site\Views;
 use ComponentPHP\Components\AbstractTemplate;
 use ComponentPHP\Components\Models\Component;
 use ComponentPHP\Routing\Models\Request;
+use ComponentPHP\Routing\Models\SiteMapEntry;
 
 class DebugView extends AbstractTemplate
 {
-    /** @var array<string, Component> $components */
-    private array $components = [];
-
-    private bool $componentsLoaded = false;
+    protected function loadFiles(): void
+    {
+        $this->loadFile(__DIR__ . '/../Components/debug.html', absolutePath: true);
+    }
 
     /**
      * @param Request[] $requests
      */
     public function mainPage(array $requests): Component
     {
-        $this->loadComponents();
-
-        return $this->components['mainPage']->fill('content', $this->requests($requests));
+        return $this
+            ->get('main_page')
+            ->fill('content', $this->requests($requests))
+        ;
     }
 
     /**
@@ -30,30 +32,46 @@ class DebugView extends AbstractTemplate
      */
     public function requests(array $requests): string
     {
-        $this->loadComponents();
-        $requestComponent = $this->components['request'];
-
         $requestComponents = [];
-        foreach ($requests as $request)
-        {
-            $nextRequest = clone $requestComponent;
-            $requestComponents[] = $nextRequest
-                ->fill('route', $request->route)
-                ->fill('scheme', $request->scheme)
+        foreach ($requests as $request) {
+            $port = $request->port === null ? '' : ":{$request->port}";
+            $url = "{$request->scheme}://{$request->host}{$port}{$request->route}";
+            $datetime = \DateTime::createFromTimestamp($request->time)->format('H:i:s d-m-Y');
+
+            $requestComponents[] = $this
+                ->get('request')
+                ->fill('url', $url)
+                ->fill('datetime', $datetime)
             ;
         }
 
-        return '<h2>Requests</h2>' . implode('', $requestComponents);
+        return '<h2>Requests</h2><br>' . implode('', $requestComponents);
     }
 
-    private function loadComponents(): void
+    /**
+     * @param SiteMapEntry[] $siteMapEntries
+     */
+    public function siteMap(array $siteMapEntries): string
     {
-        if ($this->componentsLoaded)
-        {
-            return;
+        $siteMapComponents = [];
+        foreach ($siteMapEntries as $siteMapEntry) {
+            $siteMapComponents[] = $this
+                ->get('site_map_entry')
+                ->fill('route', $siteMapEntry->route)
+                ->fill('name', $siteMapEntry->name)
+                ->fill('class', $siteMapEntry->class)
+                ->fill('method', $siteMapEntry->method)
+            ;
         }
 
-        $this->componentsLoaded = true;
-        $this->components = $this->loadFile(__DIR__ . '/../Components/debug.html', absolutePath: true);
+        return '<h2>Site Map</h2><br>' . implode('', $siteMapComponents);
+    }
+
+    public function phpinfo(): string
+    {
+        ob_start();
+        phpinfo();
+
+        return ob_get_clean();
     }
 }

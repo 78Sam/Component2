@@ -12,12 +12,8 @@ abstract class AbstractCache
 {
     protected const string CACHE_LINE_HEADER = "<?php\n\ndeclare(strict_types=1);\n\n\$_cacheLineData = ";
 
-
-    protected array $lineStates = [];
-
     /** @var array<string, mixed> $store */
     protected array $store = [];
-
     protected Logger $logger;
 
     public function __construct()
@@ -30,17 +26,20 @@ abstract class AbstractCache
         $this->logger->log('Writing cache back to file');
 
         foreach ($this->store as $file => $cachedValue) {
-            file_put_contents($file, self::CACHE_LINE_HEADER . var_export($cachedValue, return: true) . ";\n");
+            if ($cachedValue['state'] === 'write') {
+                file_put_contents(
+                    $file,
+                    self::CACHE_LINE_HEADER . var_export($cachedValue['data'], return: true) . ";\n",
+                );
+            }
         }
     }
 
     public function readCache(string $cacheLine, mixed $default = null)
     {
-        $this->lineStates[$cacheLine]['read'] = true;
-
         $path = $this->getCacheLinePath($cacheLine);
         if (\array_key_exists($path, $this->store)) {
-            return $this->store[$path];
+            return $this->store[$path]['data'];
         }
 
         if (!file_exists($path)) {
@@ -52,34 +51,39 @@ abstract class AbstractCache
         // TODO: Do we maybe want to ?? $default, issue is if we have saved 'null'
         include $path;
         $cachedValue = $_cacheLineData ?? '_undefined_cached_variable';
-        if ($cachedValue === '_undefined_cached_variable')
-        {
+        if ($cachedValue === '_undefined_cached_variable') {
             $this->logger->log("Undefined variable \$_cacheLineData for line {$cacheLine}", level: LoggingLevel::Error);
 
             return $default;
         }
 
-        $this->store[$cacheLine] = $_cacheLineData;
-        $this->lineStates[$cacheLine]['read'] = true;
-
-        return $this->store[$cacheLine];
+        return $this->writeStore($_cacheLineData, $path, 'read');
     }
 
     public function writeCache(string $cacheLine, mixed $data): void
     {
-        $hasRead = $this->lineStates[$cacheLine]['read'] ?? false;
-
         $this->logger->log("Writing to cache line {$cacheLine}");
-        if (!$hasRead)
-        {
+
+        $path = $this->getCacheLinePath($cacheLine);
+        $hasRead = ($this->store[$path]['state'] ?? null) === 'read';
+        if (!$hasRead) {
             $this->logger->log("Writing to cache line {$cacheLine} before reading it", level: LoggingLevel::Warning);
         }
-        $this->store[$this->getCacheLinePath($cacheLine)] = $data;
+
+        $this->writeStore($data, $path, 'write');
     }
 
     protected function getCacheLinePath(string $cacheLine): string
     {
         return "{$this->getDir()}/Lines/{$cacheLine}.php";
+    }
+
+    private function writeStore(mixed $data, string $path, string $type): mixed
+    {
+        $this->store[$path]['data'] = $data;
+        $this->store[$path]['state'] = $type;
+
+        return $data;
     }
 
     abstract protected function getDir(): string;

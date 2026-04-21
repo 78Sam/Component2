@@ -37,7 +37,9 @@ class Kernel
 
     private function except(\Throwable $e): never
     {
+        // TODO: We could turn this into a response and do $this->router->handleResponse(...);
         $this->logger->log($e->getMessage(), level: LoggingLevel::Error);
+        http_response_code($e->getCode());
         dump($e);
 
         exit();

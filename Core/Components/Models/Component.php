@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Components\Models;
 
+use ComponentPHP\Components\Exceptions\UndefinedSocketException;
 use ComponentPHP\Logging\Logger;
 use ComponentPHP\Logging\Models\LoggingChannels;
 use ComponentPHP\Logging\Models\LoggingLevel;
@@ -38,16 +39,21 @@ class Component implements \Stringable
         return $this->__tostring();
     }
 
+    /**
+     * @throws UndefinedSocketException
+     */
     public function fill(string $name, string|Component $value): self
     {
         if (!\array_key_exists($name, $this->sockets)) {
             Logger::singleLog(
                 "Attempted to fill an undefined socket '{$name}' in component '{$this->name}'",
-                level: LoggingLevel::Warning,
+                level: LoggingLevel::Error,
                 channel: LoggingChannels::Templating,
             );
 
-            return $this;
+            throw new UndefinedSocketException(
+                "Attempted to fill an undefined socket '{$name}' in component '{$this->name}'",
+            );
         }
 
         if (str_starts_with($name, '_chunk_')) {

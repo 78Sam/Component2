@@ -1,4 +1,4 @@
-<component !@( #component|mainPage )>
+<component !@( #component|main_page )>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -8,8 +8,8 @@
 
         <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
 
-        <link rel="stylesheet" href="CSS/Core/General.css">
-        <link rel="stylesheet" href="CSS/Core/Debug.css">
+        <link rel="stylesheet" href="/CSS/Core/General.css">
+        <link rel="stylesheet" href="/CSS/Core/Debug.css">
     </head>
     <body>
         <main class="flex">
@@ -37,7 +37,17 @@
 
 <component !@( #component|request )>
 <div>
-    <h3>!@( $route )</h3>
-    <p>!@( $scheme )</p>
+    <p>!@( $datetime ) | !@( $url )</p>
+</div>
+</component>
+
+<component !@( #component|site_map_entry )>
+<div>
+	<div class="flex inline">
+		<h3 style="margin-right: 15px;">!@( $route )</h3>
+		<p>!@( $name )</p>
+	</div>
+	<p>!@( $class )::!@( $method )</p>
+	<br>
 </div>
 </component>

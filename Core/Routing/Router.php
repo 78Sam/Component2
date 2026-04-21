@@ -66,10 +66,10 @@ class Router
             $this->logger->log('Failed to read cached site map for prod build', level: LoggingLevel::Warning);
             $this->drawFullSiteMap();
 
-			return;
+            return;
         }
 
-		$this->siteMap = $cacheValue;
+        $this->siteMap = $cacheValue;
     }
 
     /**
@@ -148,13 +148,20 @@ class Router
         http_response_code($response->responseCode);
         echo $response->content;
 
+        if (str_starts_with($this->coreRequest->route, '/_debug')) {
+            return;
+        }
+
         /** @var ?Request[] $cachedRequests */
         $cachedRequests = $this->routingCache->readCache('Requests', default: null);
         if ($cachedRequests !== null) {
             $this->previousRequests = $cachedRequests;
         }
 
-        $this->previousRequests = [$this->coreRequest, ...\array_slice($this->previousRequests, 0, self::MAX_CACHED_REQUESTS - 1)];
+        $this->previousRequests = [
+            $this->coreRequest,
+            ...\array_slice($this->previousRequests, 0, self::MAX_CACHED_REQUESTS - 1),
+        ];
         $this->routingCache->writeCache('Requests', $this->previousRequests);
     }
 

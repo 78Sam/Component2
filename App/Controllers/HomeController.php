@@ -14,7 +14,7 @@ class HomeController extends AbstractController
     #[Route(route: '/', name: 'app_home')]
     public function index(): Response
     {
-        return new Response((new Home())->draw());
+        return new Response(new Home()->home());
     }
 
     #[Route(route: '/random-number', name: 'app_randomNumber')]

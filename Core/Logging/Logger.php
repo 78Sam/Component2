@@ -13,8 +13,7 @@ class Logger
 
     public function __construct(
         public LoggingChannels $channel = LoggingChannels::Core,
-    ) {
-    }
+    ) {}
 
     public function log(string $message, LoggingLevel $level = LoggingLevel::Info): self
     {
@@ -40,17 +39,19 @@ class Logger
             mkdir($dir, recursive: true);
         }
 
-        if (!is_dir(self::COMBINED_LOG_DIRECTORY))
-        {
+        if (!is_dir(self::COMBINED_LOG_DIRECTORY)) {
             mkdir(self::COMBINED_LOG_DIRECTORY, recursive: true);
         }
 
         // TODO: Is this essentially performing I/O for each log, could be costly
         $log = "{$datetimeFormatted} {$file}::{$line} | [{$level->value}] {$message}";
         error_log("{$log}\n", message_type: 3, destination: "{$dir}/log.log");
-        error_log("{$log} ({$channel->value})\n", message_type: 3, destination: self::COMBINED_LOG_DIRECTORY . "/log.log");
-        if (CPHP_IS_DEV)
-        {
+        error_log(
+            "{$log} ({$channel->value})\n",
+            message_type: 3,
+            destination: self::COMBINED_LOG_DIRECTORY . '/log.log',
+        );
+        if (CPHP_IS_DEV) {
             error_log("{$log} ({$channel->value})");
         }
     }

@@ -1,15 +1,15 @@
 <?php
 
-class X
+$x = [];
+$x['sam']['hi'] = 'hi';
+$x['sam']['hello'] = 78;
+
+print_r($x);
+
+foreach ($x as $key => $value)
 {
-    public function __construct(
-        public int $p,
-    ) {
-    }
+	if ($value['hello'] === 78)
+	{
+		echo 'yeah';
+	}
 }
-
-$p = [
-    'hi' => X::__set_state(['p' => 12]),
-];
-
-print_r($p);
