@@ -54,3 +54,8 @@ function path_to_class(string $path): string
 
     return $class;
 }
+
+function nanoToSeconds(int $nanoSeconds, int $rounding = 5): float
+{
+	return round($nanoSeconds / 10**9, $rounding);
+}

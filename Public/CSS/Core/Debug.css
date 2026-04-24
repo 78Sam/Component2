@@ -33,3 +33,22 @@
     background-color: rgb(241, 241, 241);
     transition: all 0.5s ease;
 }
+
+/* Debug bar */
+
+#_debug-bar {
+	display: flex;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: rgb(23, 23, 23);
+}
+
+#_debug-bar p {
+	color: white;
+}
+
+#_debug-bar p:first-of-type {
+	margin-right: 20px;
+}

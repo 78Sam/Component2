@@ -1,15 +1,7 @@
 <?php
 
-$x = [];
-$x['sam']['hi'] = 'hi';
-$x['sam']['hello'] = 78;
+$start = hrtime(true);
 
-print_r($x);
+sleep(1);
 
-foreach ($x as $key => $value)
-{
-	if ($value['hello'] === 78)
-	{
-		echo 'yeah';
-	}
-}
+echo ((hrtime(true) - $start) / 10**9) . PHP_EOL;

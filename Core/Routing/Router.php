@@ -19,6 +19,7 @@ use ComponentPHP\Routing\Models\Request;
 use ComponentPHP\Routing\Models\Response;
 use ComponentPHP\Routing\Models\SiteMap;
 use ComponentPHP\Routing\Models\SiteMapEntry;
+use ComponentPHP\Site\Views\DebugBar;
 
 class Router
 {
@@ -141,12 +142,24 @@ class Router
         return $response;
     }
 
-    public function handleResponse(Response $response): void
+	/**
+	 * @param array{startTime: int, startMemory: int} $debugMetrics
+	 */
+    public function handleResponse(Response $response, array $debugMetrics): void
     {
         $this->logger->log('Handling response');
 
+		$responseContent = $response->content;
+		if (CPHP_IS_DEV)
+		{
+			$responseContent .= new DebugBar()->bar([
+				'timeTaken' => nanoToSeconds(hrtime(true) - $debugMetrics['startTime'], 3),
+				'memoryUsage' => memory_get_usage(true),
+			]);
+		}
+
         http_response_code($response->responseCode);
-        echo $response->content;
+        echo $responseContent;
 
         if (str_starts_with($this->coreRequest->route, '/_debug')) {
             return;

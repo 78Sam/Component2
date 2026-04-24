@@ -21,14 +21,19 @@ class Kernel
         $this->logger = new Logger(LoggingChannels::Core);
         $this->logger->log("Starting Kernel in {$mode} mode");
 
+		$debugMetrics = [
+			'startTime' => hrtime(true),
+			'startMemory' => memory_get_usage(true),
+		];
+
         try {
-            $startTime = microtime(true);
             $this->router = new Router();
             $this->router->init();
 
             $response = $this->router->handleRequest();
-            $this->router->handleResponse($response);
-            $timeTaken = round(microtime(true) - $startTime, 5);
+            $this->router->handleResponse($response, $debugMetrics);
+
+            $timeTaken = nanoToSeconds(hrtime(true) - $debugMetrics['startTime']);
             $this->logger->log("Request and response complete in {$timeTaken}s");
         } catch (\Throwable $exception) {
             $this->except($exception);
