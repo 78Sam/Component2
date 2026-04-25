@@ -7,10 +7,11 @@ namespace ComponentPHP\Logging;
 use ComponentPHP\Debug\DebugMetrics;
 use ComponentPHP\Logging\Models\LoggingChannels;
 use ComponentPHP\Logging\Models\LoggingLevel;
+use ComponentPHP\Utility\Config;
 
 class Logger
 {
-    private const string COMBINED_LOG_DIRECTORY = CPHP_LOG_DIR . '/Combined';
+    private const string COMBINED_LOG_DIRECTORY = Config::LOG_DIR . '/Combined';
 
     public function __construct(
         public LoggingChannels $channel = LoggingChannels::Core,
@@ -30,7 +31,7 @@ class Logger
     ): void {
         $directory = self::setupDirectories($channel);
 
-        $datetime = new \DateTime(timezone: new \DateTimeZone(CPHP_TIMEZONE))->format('d-m-Y H:i:s');
+        $datetime = new \DateTime(timezone: new \DateTimeZone(Config::TIMEZONE))->format('d-m-Y H:i:s');
         $debugFrame = DebugMetrics::getBacktrace(steps: 3);
 
         // TODO: Is this essentially performing I/O for each log, could be costly
@@ -47,14 +48,14 @@ class Logger
         );
 
         // Terminal Log
-        if (CPHP_IS_DEV) {
+        if (Config::IS_DEV) {
             error_log("{$log} ({$channel->value})");
         }
     }
 
     private static function setupDirectories(LoggingChannels $channel): string
     {
-        $directory = CPHP_LOG_DIR . "/{$channel->value}";
+        $directory = Config::LOG_DIR . "/{$channel->value}";
         if (!is_dir($directory)) {
             mkdir($directory, recursive: true);
         }

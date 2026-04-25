@@ -10,6 +10,7 @@ use ComponentPHP\Components\Exceptions\FileNotFoundException;
 use ComponentPHP\Components\Models\Component;
 use ComponentPHP\Logging\Logger;
 use ComponentPHP\Logging\Models\LoggingChannels;
+use ComponentPHP\Utility\Config;
 
 abstract class AbstractTemplate
 {
@@ -38,19 +39,19 @@ abstract class AbstractTemplate
             return;
         }
 
-        $path = $absolutePath ? $filename : CPHP_COMPONENTS_DIR . "/{$filename}";
+        $path = $absolutePath ? $filename : Config::COMPONENTS_DIR . "/{$filename}";
         $filenameNoExtension = pathinfo($filename, PATHINFO_FILENAME);
 
         /** @var array<string, Component> $components */
         $components = [];
-        if (!CPHP_IS_DEV) {
+        if (Config::IS_PROD) {
             $components = $this->componentCache->readComponentsFileCache($filenameNoExtension);
         }
 
-        if (CPHP_IS_DEV || $components === []) {
+        // If we are on DEV, or we didn't get any components from our cache, try and build them
+        if (Config::IS_DEV || $components === []) {
             $content = file_get_contents($path);
-            if ($content === false)
-            {
+            if ($content === false) {
                 throw new FileNotFoundException(message: "Cannot find component at '{$path}'", code: 404);
             }
 
@@ -83,18 +84,17 @@ abstract class AbstractTemplate
     private function buildComponents(string $content): array
     {
         $matches = [];
-        if (!preg_match_all(self::COMPONENTS_PATTERN, $content, $matches))
-        {
+        if (!preg_match_all(self::COMPONENTS_PATTERN, $content, $matches)) {
             return [];
         }
         /** @var array{name: string[], component: string[]} $matches */
 
-        /** @var array<string, Component> $components */
         $components = [];
-        for ($i = 0; $i < \count($matches['name']); $i++) {
-            $name = $matches['name'][$i];
-            $body = trim($matches['component'][$i]);
-            $components[$matches['name'][$i]] = new Component($name, $body);
+        for ($matchNumber = 0; $matchNumber < \count($matches['name']); $matchNumber++) {
+            $name = $matches['name'][$matchNumber];
+            $body = trim($matches['component'][$matchNumber]);
+
+            $components[$name] = new Component($name, $body);
         }
 
         return $components;

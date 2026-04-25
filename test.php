@@ -1,5 +1,12 @@
 <?php
 
-$x = ['a', 'b', 'c'];
+class Test
+{
+    protected function test()
+    {
+        return 10;
+    }
+}
 
-echo array_last($x);
+$x = new Test();
+$x->test();

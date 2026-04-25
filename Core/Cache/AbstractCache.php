@@ -12,7 +12,7 @@ abstract class AbstractCache
 {
     protected const string CACHE_LINE_HEADER = "<?php\n\ndeclare(strict_types=1);\n\n\$_cacheLineData = ";
 
-    /** @var array<string, mixed> $store */
+    /** @var array<string, array{data: mixed, state: string}> $store */
     protected array $store = [];
     protected Logger $logger;
 
@@ -35,7 +35,20 @@ abstract class AbstractCache
         }
     }
 
-    public function readCache(string $cacheLine, mixed $default = null)
+    public function writeCache(string $cacheLine, mixed $data): void
+    {
+        $this->logger->log("Writing to cache line {$cacheLine}");
+
+        $path = $this->getCacheLinePath($cacheLine);
+        $hasRead = ($this->store[$path]['state'] ?? null) === 'read';
+        if (!$hasRead) {
+            $this->logger->log("Writing to cache line {$cacheLine} before reading it", level: LoggingLevel::Warning);
+        }
+
+        $this->writeStore($data, $path, 'write');
+    }
+
+    protected function readCache(string $cacheLine, mixed $default = null): mixed
     {
         $path = $this->getCacheLinePath($cacheLine);
         if (\array_key_exists($path, $this->store)) {
@@ -50,27 +63,14 @@ abstract class AbstractCache
 
         // TODO: Do we maybe want to ?? $default, issue is if we have saved 'null'
         include $path;
-        $cachedValue = $_cacheLineData ?? '_undefined_cached_variable';
-        if ($cachedValue === '_undefined_cached_variable') {
+        $cachedValue = $_cacheLineData ?? null;
+        if ($cachedValue === null) {
             $this->logger->log("Undefined variable \$_cacheLineData for line {$cacheLine}", level: LoggingLevel::Error);
 
             return $default;
         }
 
-        return $this->writeStore($_cacheLineData, $path, 'read');
-    }
-
-    public function writeCache(string $cacheLine, mixed $data): void
-    {
-        $this->logger->log("Writing to cache line {$cacheLine}");
-
-        $path = $this->getCacheLinePath($cacheLine);
-        $hasRead = ($this->store[$path]['state'] ?? null) === 'read';
-        if (!$hasRead) {
-            $this->logger->log("Writing to cache line {$cacheLine} before reading it", level: LoggingLevel::Warning);
-        }
-
-        $this->writeStore($data, $path, 'write');
+        return $this->writeStore($cachedValue, $path, 'read');
     }
 
     protected function getCacheLinePath(string $cacheLine): string

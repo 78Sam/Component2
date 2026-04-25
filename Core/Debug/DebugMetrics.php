@@ -13,19 +13,19 @@ class DebugMetrics
     {
         $backtrace = debug_backtrace(limit: $steps);
 
-        /** @var string $file */
+        /** @var ?string $file */
         $file = $backtrace[$steps - 1]['file'] ?? null;
 
-        /** @var int $line */
+        /** @var ?int $line */
         $line = $backtrace[$steps - 1]['line'] ?? null;
 
-        return new Backtrace(file: $file, line: is_int($line) ? $line : null);
+        return new Backtrace(file: $file, line: $line);
     }
 
     public static function getPerformanceSlice(string $description = 'Arbitrary performance slice'): PerformanceSlice
     {
         return new PerformanceSlice(
-            sliceTaken: hrtime(true),
+            sliceTaken: (int) hrtime(true),
             memoryUsage: memory_get_usage(true),
             peakMemoryUsage: memory_get_peak_usage(true),
             description: $description,

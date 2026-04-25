@@ -19,14 +19,14 @@ use ComponentPHP\Routing\Models\Request;
 use ComponentPHP\Routing\Models\Response;
 use ComponentPHP\Routing\Models\SiteMap;
 use ComponentPHP\Routing\Models\SiteMapEntry;
-use ComponentPHP\Site\Views\DebugBar;
+use ComponentPHP\Utility\Config;
 
 class Router
 {
     /** @var string[] CONTROLLER_DIRECTORIES */
     public const array CONTROLLER_DIRECTORIES = [
-        CPHP_ROOT_DIR . '/App/Controllers',
-        CPHP_ROOT_DIR . '/Core/Site/Controllers',
+        Config::ROOT_DIR . '/App/Controllers',
+        Config::ROOT_DIR . '/Core/Site/Controllers',
     ];
 
     public const int MAX_CACHED_REQUESTS = 10;
@@ -34,8 +34,8 @@ class Router
     /** @var Request[] $previousRequests */
     public array $previousRequests = [];
 
-    private ?Request $coreRequest = null;
     private Logger $logger;
+    private Request $coreRequest;
     private RoutingCache $routingCache;
     private SiteMap $siteMap;
 
@@ -44,17 +44,11 @@ class Router
         $this->logger = new Logger(channel: LoggingChannels::Router);
         $this->routingCache = new RoutingCache();
         $this->siteMap = new SiteMap();
-    }
 
-    /**
-     * @throws RoutingException
-     */
-    public function init()
-    {
         $this->logger->log('Starting router');
         $this->coreRequest = $this->parseCoreRequest();
 
-        if (CPHP_IS_DEV) {
+        if (Config::IS_DEV) {
             $this->drawFullSiteMap();
 
             return;
@@ -62,7 +56,7 @@ class Router
 
         // If we are running in production, read the sitemap from cache
 
-        $cacheValue = $this->routingCache->readCache('SiteMap');
+        $cacheValue = $this->routingCache->readSiteMap();
         if ($cacheValue === null) {
             $this->logger->log('Failed to read cached site map for prod build', level: LoggingLevel::Warning);
             $this->drawFullSiteMap();
@@ -148,14 +142,13 @@ class Router
         $this->logger->log('Handling response');
 
         http_response_code($response->responseCode);
-        echo $response->content;
+        echo "{$response->content}";
 
         if (str_starts_with($this->coreRequest->route, '/_debug')) {
             return;
         }
 
-        /** @var ?Request[] $cachedRequests */
-        $cachedRequests = $this->routingCache->readCache('Requests', default: null);
+        $cachedRequests = $this->routingCache->readRequests();
         if ($cachedRequests !== null) {
             $this->previousRequests = $cachedRequests;
         }

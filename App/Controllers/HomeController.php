@@ -8,6 +8,7 @@ use App\Views\Home;
 use ComponentPHP\Routing\Attributes\Route;
 use ComponentPHP\Routing\Controllers\AbstractController;
 use ComponentPHP\Routing\Models\Response;
+use ComponentPHP\Utility\Config;
 
 class HomeController extends AbstractController
 {

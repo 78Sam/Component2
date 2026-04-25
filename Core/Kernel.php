@@ -10,6 +10,7 @@ use ComponentPHP\Logging\Logger;
 use ComponentPHP\Logging\Models\LoggingChannels;
 use ComponentPHP\Logging\Models\LoggingLevel;
 use ComponentPHP\Routing\Router;
+use ComponentPHP\Utility\Config;
 
 class Kernel
 {
@@ -22,14 +23,13 @@ class Kernel
     {
         $this->performanceSlices[] = DebugMetrics::getPerformanceSlice('Start of the kernel');
 
-        $mode = CPHP_IS_DEV ? 'DEV' : 'PROD';
+        $mode = Config::IS_DEV ? 'DEV' : 'PROD';
 
         $this->logger = new Logger(LoggingChannels::Core);
         $this->logger->log("Starting Kernel in {$mode} mode");
 
         try {
             $this->router = new Router();
-            $this->router->init();
             $this->performanceSlices[] = DebugMetrics::getPerformanceSlice('Initialized router');
 
             $response = $this->router->handleRequest();

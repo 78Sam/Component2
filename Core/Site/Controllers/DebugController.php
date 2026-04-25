@@ -18,7 +18,7 @@ final class DebugController extends AbstractController
     {
         $routingCache = new RoutingCache();
 
-        return new Response(new DebugView()->mainPage($routingCache->readCache('Requests', [])));
+        return new Response(new DebugView()->mainPage($routingCache->readRequests() ?? []));
     }
 
     #[Route(route: '/_debug/requests', name: 'debug_requests')]
@@ -26,7 +26,7 @@ final class DebugController extends AbstractController
     {
         $routingCache = new RoutingCache();
 
-        return new Response(new DebugView()->requests($routingCache->readCache('Requests', [])));
+        return new Response(new DebugView()->requests($routingCache->readRequests() ?? []));
     }
 
     #[Route(route: '/_debug/site-map', name: 'debug_siteMap')]
@@ -34,11 +34,7 @@ final class DebugController extends AbstractController
     {
         $routingCache = new RoutingCache();
 
-        /** @var ?SiteMap $siteMap */
-        $siteMap = $routingCache->readCache('SiteMap', null);
-        $siteMapEntries = $siteMap?->routes;
-
-        return new Response(new DebugView()->siteMap($siteMapEntries ?? []));
+        return new Response(new DebugView()->siteMap($routingCache->readSiteMap()?->routes ?? []));
     }
 
     #[Route(route: '/_debug/php-info', name: 'debug_phpInfo')]
