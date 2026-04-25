@@ -1,12 +1,7 @@
 <?php
 
-class Test
-{
-    protected function test()
-    {
-        return 10;
-    }
-}
+$x = null;
 
-$x = new Test();
-$x->test();
+$p = $x?->hello() ?? 'sam';
+
+echo $p;

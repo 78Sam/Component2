@@ -26,12 +26,11 @@ abstract class AbstractCache
         $this->logger->log('Writing cache back to file');
 
         foreach ($this->store as $file => $cachedValue) {
-            if ($cachedValue['state'] === 'write') {
-                file_put_contents(
-                    $file,
-                    self::CACHE_LINE_HEADER . var_export($cachedValue['data'], return: true) . ";\n",
-                );
+            if ($cachedValue['state'] !== 'write') {
+                continue;
             }
+
+            file_put_contents($file, self::CACHE_LINE_HEADER . var_export($cachedValue['data'], return: true) . ";\n");
         }
     }
 
@@ -61,7 +60,7 @@ abstract class AbstractCache
             return $default;
         }
 
-        // TODO: Do we maybe want to ?? $default, issue is if we have saved 'null'
+        // TODO(Sam): Do we maybe want to ?? $default, issue is if we have saved 'null'
         include $path;
         $cachedValue = $_cacheLineData ?? null;
         if ($cachedValue === null) {

@@ -34,7 +34,7 @@ class Logger
         $datetime = new \DateTime(timezone: new \DateTimeZone(Config::TIMEZONE))->format('d-m-Y H:i:s');
         $debugFrame = DebugMetrics::getBacktrace(steps: 3);
 
-        // TODO: Is this essentially performing I/O for each log, could be costly
+        // TODO(Sam): Is this essentially performing I/O for each log, could be costly
         $log = "{$datetime} {$debugFrame} | [{$level->value}] {$message}";
 
         // Channel log file

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Routing\Models;
 
-// TODO: Add $_POST parameters to the request object
+// TODO(Sam): Add $_POST parameters to the request object
 readonly class Request
 {
     /** @var array<string, string> $queryParameters */
@@ -17,7 +17,7 @@ readonly class Request
         public int $time,
         public ?string $query = null,
         public ?int $port = null,
-        ?array $queryParameters,
+        ?array $queryParameters = null,
     ) {
         $this->queryParameters = $queryParameters ?? $this->parseQueryParameters();
     }

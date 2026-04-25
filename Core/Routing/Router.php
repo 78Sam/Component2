@@ -13,7 +13,6 @@ use ComponentPHP\Routing\Controllers\AbstractController;
 use ComponentPHP\Routing\Exceptions\InvalidResponseException;
 use ComponentPHP\Routing\Exceptions\PageNotFoundException;
 use ComponentPHP\Routing\Exceptions\RouteAlreadyExistsException;
-use ComponentPHP\Routing\Exceptions\RoutingException;
 use ComponentPHP\Routing\Exceptions\UrlParseException;
 use ComponentPHP\Routing\Models\Request;
 use ComponentPHP\Routing\Models\Response;

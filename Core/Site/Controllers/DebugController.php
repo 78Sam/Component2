@@ -8,7 +8,6 @@ use ComponentPHP\Cache\Routing\RoutingCache;
 use ComponentPHP\Routing\Attributes\Route;
 use ComponentPHP\Routing\Controllers\AbstractController;
 use ComponentPHP\Routing\Models\Response;
-use ComponentPHP\Routing\Models\SiteMap;
 use ComponentPHP\Site\Views\DebugView;
 
 final class DebugController extends AbstractController
