@@ -13,7 +13,10 @@ class DebugMetrics
     {
         $backtrace = debug_backtrace(limit: $steps);
 
+        /** @var string $file */
         $file = $backtrace[$steps - 1]['file'] ?? null;
+
+        /** @var int $line */
         $line = $backtrace[$steps - 1]['line'] ?? null;
 
         return new Backtrace(file: $file, line: is_int($line) ? $line : null);

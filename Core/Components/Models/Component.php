@@ -24,6 +24,9 @@ class Component implements \Stringable
         $this->sockets = $sockets ?? $this->findSockets();
     }
 
+    /**
+     * @param array{name: string, body: string, sockets: array<string, string|Component>} $properties
+     */
     public static function __set_state(array $properties): self
     {
         return new self(...$properties);

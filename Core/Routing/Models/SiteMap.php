@@ -15,7 +15,10 @@ class SiteMap
         public array $names = [],
     ) {}
 
-    public static function __set_state($properties)
+    /**
+     * @param array{routes: array<string, SiteMapEntry>, names: array<string, SiteMapEntry>} $properties
+     */
+    public static function __set_state($properties): self
     {
         return new SiteMap(...$properties);
     }

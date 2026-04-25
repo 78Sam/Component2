@@ -16,7 +16,7 @@ abstract class AbstractTemplate
     private const string COMPONENTS_PATTERN = '/<component\s+!@\(\s*#component\|(?<name>\w+)\s*\)>(?<component>.*?)<\/component>/s';
 
     protected Logger $logger;
-    /** @var <string, array<string, Component>> $components */
+    /** @var array<string, array<string, Component>> $components */
     private array $components = [];
     private ComponentCache $componentCache;
 
@@ -39,19 +39,23 @@ abstract class AbstractTemplate
         }
 
         $path = $absolutePath ? $filename : CPHP_COMPONENTS_DIR . "/{$filename}";
-        if (!file_exists($path)) {
-            throw new FileNotFoundException(message: "Cannot find component at '{$path}'", code: 404);
-        }
+        $filenameNoExtension = pathinfo($filename, PATHINFO_FILENAME);
 
         /** @var array<string, Component> $components */
         $components = [];
         if (!CPHP_IS_DEV) {
-            $components = $this->componentCache->readCache(pathinfo($filename, PATHINFO_FILENAME), []);
+            $components = $this->componentCache->readComponentsFileCache($filenameNoExtension);
         }
 
         if (CPHP_IS_DEV || $components === []) {
-            $components = $this->buildComponents(file_get_contents($path));
-            $this->componentCache->writeCache(pathinfo($filename, PATHINFO_FILENAME), $components);
+            $content = file_get_contents($path);
+            if ($content === false)
+            {
+                throw new FileNotFoundException(message: "Cannot find component at '{$path}'", code: 404);
+            }
+
+            $components = $this->buildComponents($content);
+            $this->componentCache->writeCache($filenameNoExtension, $components);
         }
 
         $this->components[$filename] = $components;
@@ -78,10 +82,15 @@ abstract class AbstractTemplate
      */
     private function buildComponents(string $content): array
     {
+        $matches = [];
+        if (!preg_match_all(self::COMPONENTS_PATTERN, $content, $matches))
+        {
+            return [];
+        }
+        /** @var array{name: string[], component: string[]} $matches */
+
         /** @var array<string, Component> $components */
         $components = [];
-        $matches = [];
-        preg_match_all(self::COMPONENTS_PATTERN, $content, $matches);
         for ($i = 0; $i < \count($matches['name']); $i++) {
             $name = $matches['name'][$i];
             $body = trim($matches['component'][$i]);

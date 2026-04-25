@@ -7,7 +7,8 @@ namespace ComponentPHP\Routing\Models;
 // TODO: Add $_POST parameters to the request object
 readonly class Request
 {
-    private array $queryParameters;
+    /** @var array<string, string> $queryParameters */
+    public array $queryParameters;
 
     public function __construct(
         public string $scheme,
@@ -16,14 +17,16 @@ readonly class Request
         public int $time,
         public ?string $query = null,
         public ?int $port = null,
+        ?array $queryParameters,
     ) {
-        $this->queryParameters = $this->parseQueryParameters();
+        $this->queryParameters = $queryParameters ?? $this->parseQueryParameters();
     }
 
-    public static function __set_state($properties): Request
+    /**
+     * @param array{scheme: string, host: string, route: string, time: int, query: ?string, port: ?int, queryParameters: array} $properties
+     */
+    public static function __set_state($properties): self
     {
-        unset($properties['queryParameters']);
-
         return new Request(...$properties);
     }
 

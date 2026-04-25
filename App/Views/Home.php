@@ -14,6 +14,7 @@ class Home extends AbstractTemplate
         return $this->get('h1')->fill('h1', 'Home');
     }
 
+    #[\Override]
     protected function loadFiles(): void
     {
         $this->loadFile('home.html');

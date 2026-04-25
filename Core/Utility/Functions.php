@@ -20,10 +20,10 @@ function dump(mixed ...$values): void
 function path_to_class(string $path): string
 {
     $class = $path
-        |> (fn($val) => str_replace(DIRECTORY_SEPARATOR, '/', $val))
-        |> (fn($val) => substr($val, 0, -4))
-        |> (fn($val) => str_replace(CPHP_ROOT_DIR . '/', '', $val))
-        |> (fn($val) => str_replace('/', '\\', $val));
+        |> (fn(string $val) => str_replace(DIRECTORY_SEPARATOR, '/', $val))
+        |> (fn(string $val) => substr($val, 0, -4))
+        |> (fn(string $val) => str_replace(CPHP_ROOT_DIR . '/', '', $val))
+        |> (fn(string $val) => str_replace('/', '\\', $val));
 
     foreach (CPHP_NAMESPACE_ALIASES as $folder => $namespace) {
         if (str_starts_with($class, $folder)) {

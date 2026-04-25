@@ -109,6 +109,7 @@ class Router
             time: $_SERVER['REQUEST_TIME'] ?? -1,
             query: $routeAndQuery[1] ?? null,
             port: $port,
+            queryParameters: null,
         );
 
         $this->logger->log("Parsed request: {$request}");

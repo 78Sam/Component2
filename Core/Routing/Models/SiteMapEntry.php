@@ -18,7 +18,10 @@ readonly class SiteMapEntry
         public string $method,
     ) {}
 
-    public static function __set_state($properties)
+    /**
+     * @param array{route: string, name: string, class: string, method: string} $properties
+     */
+    public static function __set_state($properties): self
     {
         return new SiteMapEntry(...$properties);
     }
