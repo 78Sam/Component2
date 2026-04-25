@@ -2,34 +2,13 @@
 
 declare(strict_types=1);
 
-/**
- * @return array{file: string, line: int}
- */
-function get_debug_backtrace(int $step = 2): array
-{
-    /** @var array[] $backtrace */
-    $backtrace = debug_backtrace(limit: $step);
-    if (count($backtrace) < $step) {
-        return [
-            'file' => 'unknown_file',
-            'line' => -1,
-        ];
-    }
-
-    return [
-        'file' => $backtrace[$step - 1]['file'] ?? 'unknown_file',
-        'line' => $backtrace[$step - 1]['line'] ?? -1,
-    ];
-}
+use ComponentPHP\Debug\DebugMetrics;
 
 function dump(mixed ...$values): void
 {
-    $debugFrame = get_debug_backtrace();
-    $file = $debugFrame['file'];
-    $line = $debugFrame['line'];
+    $debugFrame = DebugMetrics::getBacktrace();
 
-    echo '<pre>';
-    echo "{$file}::{$line}\n\n";
+    echo "<pre>{$debugFrame}\n\n";
     foreach ($values as $value) {
         $data = print_r($value, return: true);
         echo htmlspecialchars($data);
@@ -57,5 +36,5 @@ function path_to_class(string $path): string
 
 function nanoToSeconds(int $nanoSeconds, int $rounding = 5): float
 {
-	return round($nanoSeconds / 10**9, $rounding);
+    return round($nanoSeconds / (10 ** 9), $rounding);
 }

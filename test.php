@@ -1,7 +1,5 @@
 <?php
 
-$start = hrtime(true);
+$x = ['a', 'b', 'c'];
 
-sleep(1);
-
-echo ((hrtime(true) - $start) / 10**9) . PHP_EOL;
+echo array_last($x);

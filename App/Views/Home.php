@@ -9,18 +9,13 @@ use ComponentPHP\Components\Models\Component;
 
 class Home extends AbstractTemplate
 {
-    protected function loadFiles(): void
+    public function home(): Component
     {
-        $this->loadFile('app.html');
+        return $this->get('h1')->fill('h1', 'Home');
     }
 
-    public function home(): string|Component
+    protected function loadFiles(): void
     {
-        return $this
-            ->get('main')
-            ->fill('titleVar', 'Sams cool document!')
-            ->fill('bodyVar', '<h1>Its a body!</h1>')
-            ->fill('bodyVar2', $this->get('paragraph')->fill('text', 'Hello this is a paragraph'))
-        ;
+        $this->loadFile('home.html');
     }
 }

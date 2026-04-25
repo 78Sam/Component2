@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace ComponentPHP;
 
+use ComponentPHP\Debug\DebugMetrics;
+use ComponentPHP\Debug\Models\PerformanceSlice;
 use ComponentPHP\Logging\Logger;
 use ComponentPHP\Logging\Models\LoggingChannels;
 use ComponentPHP\Logging\Models\LoggingLevel;
@@ -11,29 +13,32 @@ use ComponentPHP\Routing\Router;
 
 class Kernel
 {
+    /** @var PerformanceSlice[] $performanceSlices */
+    private array $performanceSlices;
     private Logger $logger;
     private Router $router;
 
     public function __construct()
     {
+        $this->performanceSlices[] = DebugMetrics::getPerformanceSlice('Start of the kernel');
+
         $mode = CPHP_IS_DEV ? 'DEV' : 'PROD';
 
         $this->logger = new Logger(LoggingChannels::Core);
         $this->logger->log("Starting Kernel in {$mode} mode");
 
-		$debugMetrics = [
-			'startTime' => hrtime(true),
-			'startMemory' => memory_get_usage(true),
-		];
-
         try {
             $this->router = new Router();
             $this->router->init();
+            $this->performanceSlices[] = DebugMetrics::getPerformanceSlice('Initialized router');
 
             $response = $this->router->handleRequest();
-            $this->router->handleResponse($response, $debugMetrics);
+            $this->performanceSlices[] = DebugMetrics::getPerformanceSlice('Handled request');
 
-            $timeTaken = nanoToSeconds(hrtime(true) - $debugMetrics['startTime']);
+            $this->router->handleResponse($response);
+            $this->performanceSlices[] = DebugMetrics::getPerformanceSlice('Handled response');
+
+            $timeTaken = array_last($this->performanceSlices)->since($this->performanceSlices[0])['seconds'];
             $this->logger->log("Request and response complete in {$timeTaken}s");
         } catch (\Throwable $exception) {
             $this->except($exception);

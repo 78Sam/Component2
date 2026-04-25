@@ -142,24 +142,12 @@ class Router
         return $response;
     }
 
-	/**
-	 * @param array{startTime: int, startMemory: int} $debugMetrics
-	 */
-    public function handleResponse(Response $response, array $debugMetrics): void
+    public function handleResponse(Response $response): void
     {
         $this->logger->log('Handling response');
 
-		$responseContent = $response->content;
-		if (CPHP_IS_DEV)
-		{
-			$responseContent .= new DebugBar()->bar([
-				'timeTaken' => nanoToSeconds(hrtime(true) - $debugMetrics['startTime'], 3),
-				'memoryUsage' => memory_get_usage(true),
-			]);
-		}
-
         http_response_code($response->responseCode);
-        echo $responseContent;
+        echo $response->content;
 
         if (str_starts_with($this->coreRequest->route, '/_debug')) {
             return;

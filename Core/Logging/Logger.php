@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Logging;
 
+use ComponentPHP\Debug\DebugMetrics;
 use ComponentPHP\Logging\Models\LoggingChannels;
 use ComponentPHP\Logging\Models\LoggingLevel;
 
@@ -27,32 +28,41 @@ class Logger
         LoggingLevel $level = LoggingLevel::Info,
         LoggingChannels $channel = LoggingChannels::Core,
     ): void {
-        $debugFrame = get_debug_backtrace(step: 3);
-        $file = $debugFrame['file'];
-        $line = $debugFrame['line'];
+        $directory = self::setupDirectories($channel);
 
-        $datetime = new \DateTime(timezone: new \DateTimeZone(CPHP_TIMEZONE));
-        $datetimeFormatted = $datetime->format('d-m-Y H:i:s');
+        $datetime = new \DateTime(timezone: new \DateTimeZone(CPHP_TIMEZONE))->format('d-m-Y H:i:s');
+        $debugFrame = DebugMetrics::getBacktrace(steps: 3);
 
-        $dir = CPHP_LOG_DIR . "/{$channel->value}";
-        if (!is_dir($dir)) {
-            mkdir($dir, recursive: true);
+        // TODO: Is this essentially performing I/O for each log, could be costly
+        $log = "{$datetime} {$debugFrame} | [{$level->value}] {$message}";
+
+        // Channel log file
+        error_log("{$log}\n", message_type: 3, destination: "{$directory}/log.log");
+
+        // Combined log file
+        error_log(
+            "{$log} ({$channel->value})\n",
+            message_type: 3,
+            destination: self::COMBINED_LOG_DIRECTORY . '/log.log',
+        );
+
+        // Terminal Log
+        if (CPHP_IS_DEV) {
+            error_log("{$log} ({$channel->value})");
+        }
+    }
+
+    private static function setupDirectories(LoggingChannels $channel): string
+    {
+        $directory = CPHP_LOG_DIR . "/{$channel->value}";
+        if (!is_dir($directory)) {
+            mkdir($directory, recursive: true);
         }
 
         if (!is_dir(self::COMBINED_LOG_DIRECTORY)) {
             mkdir(self::COMBINED_LOG_DIRECTORY, recursive: true);
         }
 
-        // TODO: Is this essentially performing I/O for each log, could be costly
-        $log = "{$datetimeFormatted} {$file}::{$line} | [{$level->value}] {$message}";
-        error_log("{$log}\n", message_type: 3, destination: "{$dir}/log.log");
-        error_log(
-            "{$log} ({$channel->value})\n",
-            message_type: 3,
-            destination: self::COMBINED_LOG_DIRECTORY . '/log.log',
-        );
-        if (CPHP_IS_DEV) {
-            error_log("{$log} ({$channel->value})");
-        }
+        return $directory;
     }
 }
