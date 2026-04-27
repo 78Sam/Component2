@@ -100,6 +100,7 @@ class Router
             host: $host,
             route: $route,
             time: $_SERVER['REQUEST_TIME'] ?? -1,
+            post: $_POST,
             query: $routeAndQuery[1] ?? null,
             port: $port,
             queryParameters: null,

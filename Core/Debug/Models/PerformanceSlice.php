@@ -18,13 +18,13 @@ readonly class PerformanceSlice
     /**
      * @return array{'nanoseconds': int, 'seconds': float}
      */
-    public function since(PerformanceSlice $performanceSlice): array
+    public function since(PerformanceSlice $performanceSlice, int $secondsPrecision = 5): array
     {
         $nanosecondDifference = $this->sliceTaken - $performanceSlice->sliceTaken;
 
         return [
             'nanoseconds' => $nanosecondDifference,
-            'seconds' => DebugMetrics::nanoToSeconds($nanosecondDifference),
+            'seconds' => DebugMetrics::nanoToSeconds($nanosecondDifference, $secondsPrecision),
         ];
     }
 }

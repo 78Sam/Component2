@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ComponentPHP\Components\Models;
 
 use ComponentPHP\Components\Exceptions\UndefinedSocketException;
+use ComponentPHP\Debug\DebugMetrics;
 use ComponentPHP\Logging\Logger;
 use ComponentPHP\Logging\Models\LoggingChannels;
 use ComponentPHP\Logging\Models\LoggingLevel;
@@ -45,7 +46,7 @@ class Component implements \Stringable
     /**
      * @throws UndefinedSocketException
      */
-    public function fill(string $name, string|Component $value): self
+    public function fill(string $name, string|Component $value, bool $raw = false): self
     {
         if (!\array_key_exists($name, $this->sockets)) {
             Logger::singleLog(
@@ -59,7 +60,7 @@ class Component implements \Stringable
             );
         }
 
-        if (str_starts_with($name, '_chunk_')) {
+        if (\str_starts_with($name, '_chunk_')) {
             Logger::singleLog(
                 "Potentially attempting to fill generated socket '{$name}'",
                 level: LoggingLevel::Warning,
@@ -67,7 +68,11 @@ class Component implements \Stringable
             );
         }
 
-        $this->sockets[$name] = $value;
+        if ($raw || $value instanceof Component) {
+            $this->sockets[$name] = $value;
+        } else {
+            $this->sockets[$name] = htmlspecialchars($value);
+        }
 
         return $this;
     }
@@ -77,10 +82,12 @@ class Component implements \Stringable
      */
     private function findSockets(): array
     {
-        Logger::singleLog("Computing sockets for component '{$this->name}'", channel: LoggingChannels::Templating);
+        $performanceStart = DebugMetrics::getPerformanceSlice('Sockets start');
 
         $matches = [];
         preg_match_all(self::VARIABLE_PATTERN, $this->body, $matches);
+
+        // TODO(Sam): Duplicate variable names don't work
 
         $result = [];
         $content = $this->body;
@@ -93,6 +100,12 @@ class Component implements \Stringable
             }
         }
         $result['_chunk_-1'] = $content;
+
+        $performance = DebugMetrics::getPerformanceSlice('Sockets end')->since($performanceStart)['seconds'];
+        Logger::singleLog(
+            "Computing sockets for component '{$this->name}' in {$performance}s",
+            channel: LoggingChannels::Templating,
+        );
 
         return $result;
     }

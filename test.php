@@ -1,7 +1,3 @@
 <?php
 
-$x = null;
-
-$p = $x?->hello() ?? 'sam';
-
-echo $p;
+print_r($_POST);

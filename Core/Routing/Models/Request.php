@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Routing\Models;
 
-// TODO(Sam): Add $_POST parameters to the request object
 readonly class Request
 {
     /** @var array<string, string> $queryParameters */
@@ -15,6 +14,7 @@ readonly class Request
         public string $host,
         public string $route,
         public int $time,
+        public array $post,
         public ?string $query = null,
         public ?int $port = null,
         ?array $queryParameters = null,
@@ -23,7 +23,7 @@ readonly class Request
     }
 
     /**
-     * @param array{scheme: string, host: string, route: string, time: int, query: ?string, port: ?int, queryParameters: array} $properties
+     * @param array{scheme: string, host: string, route: string, time: int, post: array, query: ?string, port: ?int, queryParameters: array} $properties
      */
     public static function __set_state($properties): self
     {
@@ -46,9 +46,16 @@ readonly class Request
         return "Request: {$url}";
     }
 
+    // TODO(Sam): Can these two methods be combined or something
+
     public function get(string $name, mixed $default = null): mixed
     {
         return $this->queryParameters[$name] ?? $default;
+    }
+
+    public function getPost(string $name, mixed $default = null): mixed
+    {
+        return $this->post[$name] ?? $default;
     }
 
     /**

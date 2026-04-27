@@ -14,9 +14,10 @@ use ComponentPHP\Utility\Config;
 
 abstract class AbstractTemplate
 {
-    private const string COMPONENTS_PATTERN = '/<component\s+!@\(\s*#component\|(?<name>\w+)\s*\)>(?<component>.*?)<\/component>/s';
+    private const string COMPONENTS_PATTERN = '/!@\(\s*component\|(?<name>\w+)\s*\)(?<component>.*?)!@\(\s*end\s*\)/s';
 
     protected Logger $logger;
+
     /** @var array<string, array<string, Component>> $components */
     private array $components = [];
     private ComponentCache $componentCache;
@@ -50,7 +51,7 @@ abstract class AbstractTemplate
 
         // If we are on DEV, or we didn't get any components from our cache, try and build them
         if (Config::IS_DEV || $components === []) {
-            $content = file_get_contents($path);
+            $content = \file_get_contents($path);
             if ($content === false) {
                 throw new FileNotFoundException(message: "Cannot find component at '{$path}'", code: 404);
             }
@@ -69,13 +70,47 @@ abstract class AbstractTemplate
      */
     public function get(string $component): Component
     {
-        foreach ($this->components as $file => $components) {
+        foreach (\array_values($this->components) as $components) {
             if (\array_key_exists($component, $components)) {
                 return clone $components[$component];
             }
         }
 
         throw new ComponentNotFoundException("Unable to find component '{$component}'");
+    }
+
+    /**
+     * @param list<array<string, string|Component>> $values
+     *
+     * @return Component[]
+     */
+    public function stack(string $componentName, array $values): array
+    {
+        $components = [];
+        foreach ($values as $row) {
+            $component = $this->get($componentName);
+            foreach ($row as $key => $value) {
+                $component->fill($key, $value);
+            }
+            $components[] = $component;
+        }
+
+        return $components;
+    }
+
+    public function collect(array $items, string $separator = '')
+    {
+        $sockets = [];
+        $count = 0;
+        foreach ($items as $item) {
+            $sockets["_chunk_{$count}"] = $item;
+            $count++;
+            $sockets["_chunk_{$count}"] = $separator;
+            $count++;
+        }
+        array_pop($sockets);
+
+        return new Component('_collector', '', $sockets);
     }
 
     /**
@@ -92,7 +127,7 @@ abstract class AbstractTemplate
         $components = [];
         for ($matchNumber = 0; $matchNumber < \count($matches['name']); $matchNumber++) {
             $name = $matches['name'][$matchNumber];
-            $body = trim($matches['component'][$matchNumber]);
+            $body = \trim($matches['component'][$matchNumber]);
 
             $components[$name] = new Component($name, $body);
         }
