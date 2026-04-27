@@ -11,7 +11,7 @@ readonly class Route
 
     public function __construct(
         string $route,
-        public string $name,
+        public string $name, // TODO(Sam): Add method specifiers e.g. POST, PATCH (all HTMX https://htmx.org/docs/#ajax)
     ) {
         $route = trim($route, '/');
 
