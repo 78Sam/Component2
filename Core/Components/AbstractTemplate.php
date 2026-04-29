@@ -32,13 +32,18 @@ abstract class AbstractTemplate
     abstract protected function loadFiles(): void;
 
     /**
+     * Load a file containing components into the current context
+     *
      * @throws FileNotFoundException
+     *
+     * @return list<string> A list of component names that have been loaded
      */
-    protected function loadFile(string $filename, bool $absolutePath = false): void
+    protected function loadFile(string $filename, bool $absolutePath = false): array
     {
-        if (\array_key_exists($filename, $this->components)) {
-            return;
-        }
+    	$existingComponents = $this->components[$filename] ?? null;
+        if ($existingComponents !== null) {
+            return \array_keys($existingComponents);
+		}
 
         $path = $absolutePath ? $filename : Config::COMPONENTS_DIR . "/{$filename}";
         $filenameNoExtension = pathinfo($filename, PATHINFO_FILENAME);
@@ -61,6 +66,8 @@ abstract class AbstractTemplate
         }
 
         $this->components[$filename] = $components;
+
+        return \array_keys($components);
     }
 
     /**
@@ -82,7 +89,7 @@ abstract class AbstractTemplate
     /**
      * @param list<array<string, string|Component>> $values
      *
-     * @return Component[]
+     * @return list<Component>
      */
     public function stack(string $componentName, array $values): array
     {
@@ -98,7 +105,10 @@ abstract class AbstractTemplate
         return $components;
     }
 
-    public function collect(array $items, string $separator = '')
+    /**
+     * @param list<string|Component> $items
+     */
+    public function collect(array $items, string $separator = ''): Component
     {
         $sockets = [];
         $count = 0;

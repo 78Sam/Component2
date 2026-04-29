@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Debug\Models;
 
-readonly class Backtrace
+readonly class Backtrace implements \Stringable
 {
     public function __construct(
         public ?string $file,

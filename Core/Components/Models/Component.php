@@ -33,14 +33,14 @@ class Component implements \Stringable
         return new self(...$properties);
     }
 
-    public function __tostring(): string
+    public function __toString(): string
     {
         return implode('', $this->sockets);
     }
 
     public function render(): string
     {
-        return $this->__tostring();
+        return $this->__toString();
     }
 
     /**

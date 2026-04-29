@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Routing\Models;
 
-readonly class Request
+readonly class Request implements \Stringable
 {
 	/**
 	 * @param array<string, string> $get

@@ -23,4 +23,10 @@ final class HomeController extends AbstractController
     {
         return new Response(new Home()->getRandomNumber());
     }
+
+    #[Route(route: '/test', name: 'app_test')]
+    public function test(): Response
+    {
+    	return new Response('');
+    }
 }
