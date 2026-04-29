@@ -6,6 +6,10 @@ namespace ComponentPHP\Routing\Models;
 
 readonly class Request
 {
+	/**
+	 * @param array<string, string> $get
+	 * @param array<string, string> $post
+	 */
     public function __construct(
         public string $scheme,
         public string $host,
@@ -31,17 +35,5 @@ readonly class Request
         $query = $this->get === [] ? '' : '?' . http_build_query($this->get, encoding_type: PHP_QUERY_RFC3986);
 
         return "{$this->method}@{$this->scheme}://{$hostAndPort}{$this->route}{$query}";
-    }
-
-    // TODO(Sam): Can these two methods be combined or something
-
-    public function get(string $name, mixed $default = null): mixed
-    {
-        return $this->queryParameters[$name] ?? $default;
-    }
-
-    public function getPost(string $name, mixed $default = null): mixed
-    {
-        return $this->post[$name] ?? $default;
     }
 }

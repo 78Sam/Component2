@@ -9,11 +9,12 @@ use ComponentPHP\Routing\Attributes\Route;
 use ComponentPHP\Routing\Controllers\AbstractController;
 use ComponentPHP\Routing\Models\Response;
 
-class HomeController extends AbstractController
+final class HomeController extends AbstractController
 {
     #[Route(route: '/', name: 'app_home')]
     public function index(): Response
     {
+		$p = $this->request->get;
         return new Response(new Home()->home());
     }
 
