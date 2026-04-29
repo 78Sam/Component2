@@ -73,37 +73,23 @@ class Router
      */
     private function parseCoreRequest(): Request
     {
-        $scheme = ($_SERVER['HTTPS'] ?? 'off') === 'on' ? 'https' : 'http';
-
-        $host = $_SERVER['HTTP_HOST'] ?? null;
-        if ($host === null) {
+        $hostAndPort = $_SERVER['HTTP_HOST'] ?? null;
+        if ($hostAndPort === null) {
             throw new UrlParseException('$_SERVER["HTTP_HOST"] is null', code: 500);
         }
-
-        $hostAndPort = explode(':', $host);
+        $hostAndPort = explode(':', $hostAndPort);
         $host = $hostAndPort[0];
-        $port = null;
-        if (\count($hostAndPort) === 2) {
-            $port = (int) $hostAndPort[1];
-        }
-
-        $uri = $_SERVER['REQUEST_URI'] ?? null;
-        if ($uri === null) {
-            throw new UrlParseException('$_SERVER["REQUEST_URI"] is null', code: 500);
-        }
-
-        $routeAndQuery = explode('?', $uri, limit: 2);
-        $route = '/' . trim($routeAndQuery[0], '/');
+        $port = \count($hostAndPort) === 2 ? (int) $hostAndPort[1] : null;
 
         $request = new Request(
-            scheme: $scheme,
+            scheme: ($_SERVER['https'] ?? null) !== null ? 'https' : 'http',
             host: $host,
-            route: $route,
-            time: $_SERVER['REQUEST_TIME'] ?? -1,
+            route: '/' . trim($_SERVER['PATH_INFO'] ?? '/', '/'),
+            get: $_GET,
             post: $_POST,
-            query: $routeAndQuery[1] ?? null,
+            method: $_SERVER['REQUEST_METHOD'],
+            time: $_SERVER['REQUEST_TIME'] ?? -1,
             port: $port,
-            queryParameters: null,
         );
 
         $this->logger->log("Parsed request: {$request}");
@@ -124,6 +110,15 @@ class Router
         $siteMapEntry = $this->siteMap->findByRoute($request->route);
         if ($siteMapEntry === null) {
             throw new PageNotFoundException($request->route, "Page not found '{$request->route}'", code: 404);
+        }
+
+        // Does the route support the HTTP verb, e.g. POST, PATCH
+        if ($siteMapEntry->HTTPVerbs !== [] && !\in_array($request->method, $siteMapEntry->HTTPVerbs, true)) {
+            throw new PageNotFoundException(
+                $request->route,
+                "Page not found '{$request->route}' for {$request->method}",
+                code: 404,
+            );
         }
 
         $this->logger->log("Calling route {$siteMapEntry->class}::{$siteMapEntry->method}");
@@ -221,6 +216,7 @@ class Router
                         name: $name,
                         class: $reflectionClass->name,
                         method: $method->name,
+                        HTTPVerbs: $routeAttributeInstance->HTTPVerbs,
                     );
 
                     if (!$this->siteMap->addSiteMapEntry($siteMapEntry)) {

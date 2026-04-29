@@ -13,7 +13,7 @@
 !@( end )
 
 !@( component|number_container )
-<button hx-get="/random" hx-swap="afterbegin" hx-target="#random-numbers">Add a random number!</button>
+<button hx-patch="/random" hx-swap="afterbegin" hx-target="#random-numbers">Add a random number!</button>
 <div id="random-numbers">
 	!@( $randomNumbers )
 </div>

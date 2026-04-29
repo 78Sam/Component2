@@ -6,24 +6,19 @@ namespace ComponentPHP\Routing\Models;
 
 readonly class Request
 {
-    /** @var array<string, string> $queryParameters */
-    public array $queryParameters;
-
     public function __construct(
         public string $scheme,
         public string $host,
         public string $route,
-        public int $time,
+        public array $get,
         public array $post,
-        public ?string $query = null,
+        public string $method,
+        public int $time,
         public ?int $port = null,
-        ?array $queryParameters = null,
-    ) {
-        $this->queryParameters = $queryParameters ?? $this->parseQueryParameters();
-    }
+    ) {}
 
     /**
-     * @param array{scheme: string, host: string, route: string, time: int, post: array, query: ?string, port: ?int, queryParameters: array} $properties
+     * @param array{scheme: string, host: string, route: string, get: array, post: array, method: string, time: int, port: ?int} $properties
      */
     public static function __set_state($properties): self
     {
@@ -32,18 +27,10 @@ readonly class Request
 
     public function __toString(): string
     {
-        $url = "<scheme: {$this->scheme}>://<host: {$this->host}>";
-        if ($this->port) {
-            $url .= "<port: {$this->port}>";
-        }
+        $hostAndPort = $this->port === null ? $this->host : "{$this->host}:{$this->port}";
+        $query = $this->get === [] ? '' : '?' . http_build_query($this->get, encoding_type: PHP_QUERY_RFC3986);
 
-        $url .= "<route: {$this->route}>";
-
-        if ($this->query) {
-            $url .= "<query: {$this->query}>";
-        }
-
-        return "Request: {$url}";
+        return "{$this->method}@{$this->scheme}://{$hostAndPort}{$this->route}{$query}";
     }
 
     // TODO(Sam): Can these two methods be combined or something
@@ -56,23 +43,5 @@ readonly class Request
     public function getPost(string $name, mixed $default = null): mixed
     {
         return $this->post[$name] ?? $default;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function parseQueryParameters(): array
-    {
-        if ($this->query === null) {
-            return [];
-        }
-
-        $queryParameters = [];
-        foreach (explode('&', $this->query) as $queryParameter) {
-            $keyValuePair = explode('=', $queryParameter);
-            $queryParameters[$keyValuePair[0]] = $keyValuePair[1];
-        }
-
-        return $queryParameters;
     }
 }

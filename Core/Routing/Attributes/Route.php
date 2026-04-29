@@ -9,12 +9,12 @@ readonly class Route
 {
     public string $route;
 
+    /** @param list<string> $HTTPVerbs */
     public function __construct(
         string $route,
-        public string $name, // TODO(Sam): Add method specifiers e.g. POST, PATCH (all HTMX https://htmx.org/docs/#ajax)
+        public string $name,
+        public array $HTTPVerbs = [],
     ) {
-        $route = trim($route, '/');
-
-        $this->route = "/{$route}";
+        $this->route = '/' . trim($route, '/');
     }
 }
