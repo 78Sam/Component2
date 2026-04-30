@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Views\Home;
+use App\Views\Test;
 use ComponentPHP\Routing\Attributes\Route;
 use ComponentPHP\Routing\Controllers\AbstractController;
 use ComponentPHP\Routing\Models\Response;
@@ -27,6 +28,11 @@ final class HomeController extends AbstractController
     #[Route(route: '/test', name: 'app_test')]
     public function test(): Response
     {
+    	$test = new Test();
+		$res = $test->test();
+		dump($res);
+		dump($res->render());
+
     	return new Response('');
     }
 }

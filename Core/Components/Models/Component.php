@@ -87,6 +87,24 @@ class Component implements \Stringable
         $matches = [];
         preg_match_all(self::VARIABLE_PATTERN, $this->body, $matches);
 
+		$seenNames = []; // Store this in the class
+		$paramCount = 0;
+		$res = preg_replace_callback(self::VARIABLE_PATTERN, function ($match) use (&$seenNames, &$paramCount) {
+			$name = $match['name'];
+			if (!\array_key_exists($name, $seenNames)) {
+				$seenNames[$name] = [];
+			}
+
+			$seenNames[$name][] = "_param_{$paramCount}";
+			$paramCount++;
+
+			dump(explode($match[0], $this->body, 3)); // Maybe try replace it in body here?
+
+			return "!@(\${$name})";
+		}, $this->body);
+
+		dump($res, $seenNames);
+
         // TODO(Sam): Duplicate variable names don't work
 
         $result = [];
