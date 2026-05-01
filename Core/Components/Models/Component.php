@@ -13,14 +13,14 @@ class Component implements \Stringable
 {
     private const string VARIABLE_PATTERN = '/!@\(\s*\$(?<name>[a-zA-Z_]+\w*)\s*\)/';
 
-    /** 
-	 * @param array<string, Socket> $sockets
-	 * @param array<string, list<string>> $socketPseudonyms
-	 */
+    /**
+     * @param array<string, Socket> $sockets
+     * @param array<string, list<string>> $socketPseudonyms
+     */
     public function __construct(
         public readonly string $name,
         private array $sockets,
-		private array $socketPseudonyms,
+        private array $socketPseudonyms,
     ) {}
 
     /**
@@ -66,10 +66,9 @@ class Component implements \Stringable
             );
         }
 
-		foreach ($this->socketPseudonyms[$name] as $pseudonym)
-		{
-			$this->sockets[$pseudonym]->value = ($raw || $value instanceof Component) ? $value : htmlspecialchars($value);
-		}
+        foreach ($this->socketPseudonyms[$name] as $pseudonym) {
+            $this->sockets[$pseudonym]->value = $raw || $value instanceof Component ? $value : htmlspecialchars($value);
+        }
 
         return $this;
     }

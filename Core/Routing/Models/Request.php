@@ -6,10 +6,10 @@ namespace ComponentPHP\Routing\Models;
 
 readonly class Request implements \Stringable
 {
-	/**
-	 * @param array<string, string> $get
-	 * @param array<string, string> $post
-	 */
+    /**
+     * @param array<string, string> $get
+     * @param array<string, string> $post
+     */
     public function __construct(
         public string $scheme,
         public string $host,

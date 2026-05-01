@@ -15,7 +15,7 @@ final class HomeController extends AbstractController
     #[Route(route: '/', name: 'app_home')]
     public function index(): Response
     {
-		$p = $this->request->get;
+        $p = $this->request->get;
         return new Response(new Home()->home());
     }
 
@@ -28,6 +28,6 @@ final class HomeController extends AbstractController
     #[Route(route: '/test', name: 'app_test')]
     public function test(): Response
     {
-    	return new Response(new Test()->test());
+        return new Response(new Test()->test());
     }
 }

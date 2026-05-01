@@ -16,7 +16,7 @@ use ComponentPHP\Utility\Config;
 abstract class AbstractTemplate
 {
     private const string COMPONENTS_PATTERN = '/!@\(\s*component\|(?<name>\w+)\s*\)(?<component>.*?)!@\(\s*end\s*\)/s';
-	private const string VARIABLE_PATTERN = '/!@\(\s*\$(?<name>[a-zA-Z_]+\w*)\s*\)/';
+    private const string VARIABLE_PATTERN = '/!@\(\s*\$(?<name>[a-zA-Z_]+\w*)\s*\)/';
 
     protected Logger $logger;
 
@@ -42,10 +42,10 @@ abstract class AbstractTemplate
      */
     protected function loadFile(string $filename, bool $absolutePath = false): array
     {
-    	$existingComponents = $this->components[$filename] ?? null;
+        $existingComponents = $this->components[$filename] ?? null;
         if ($existingComponents !== null) {
             return \array_keys($existingComponents);
-		}
+        }
 
         $path = $absolutePath ? $filename : Config::COMPONENTS_DIR . "/{$filename}";
         $filenameNoExtension = pathinfo($filename, PATHINFO_FILENAME);
@@ -113,17 +113,17 @@ abstract class AbstractTemplate
     public function collect(array $items, string $separator = ''): Component
     {
         $sockets = [];
-		$socketPseudonyms = [];
+        $socketPseudonyms = [];
         $count = 0;
         foreach ($items as $item) {
-			$chunk = "_chunk_{$count}";
+            $chunk = "_chunk_{$count}";
             $sockets[$chunk] = $item;
-			$socketPseudonyms[$chunk] = [$chunk];
+            $socketPseudonyms[$chunk] = [$chunk];
             $count++;
 
-			$chunk = "_chunk_{$count}";
+            $chunk = "_chunk_{$count}";
             $sockets["_chunk_{$count}"] = $separator;
-			$socketPseudonyms[$chunk] = [$chunk];
+            $socketPseudonyms[$chunk] = [$chunk];
             $count++;
         }
         array_pop($sockets);
@@ -147,58 +147,61 @@ abstract class AbstractTemplate
             $name = $matches['name'][$matchNumber];
             $body = \trim($matches['component'][$matchNumber]);
 
-			$sockets = $this->computeSockets($body);
+            $sockets = $this->computeSockets($body);
             $components[$name] = new Component($name, $sockets['sockets'], $sockets['pseudonyms']);
         }
 
         return $components;
     }
 
-	/**
-	 * @return array{sockets: array<string, Socket>, pseudonyms: array<string, list<string>>}
-	 */
-	private function computeSockets(string $componentBody): array
-	{
-		/** @var array<string, array{count: int, pseudonyms: list<string>}> $socketPseudonyms */
-		$socketPseudonyms = [];
-		/** @var list<string> $splitOrdering */
-		$splitOrdering = [];
-		$componentBody = preg_replace_callback(self::VARIABLE_PATTERN, function ($match) use (&$socketPseudonyms, &$splitOrdering) {
-			$name = $match['name'];
-			if (!array_key_exists($name, $socketPseudonyms)) {
-				$socketPseudonyms[$name] = ['count' => 0, 'pseudonyms' => []];
-			}
-			$count = $socketPseudonyms[$name]['count'];
-			$replacement = "_chunk_variable_{$name}_{$count}";
+    /**
+     * @return array{sockets: array<string, Socket>, pseudonyms: array<string, list<string>>}
+     */
+    private function computeSockets(string $componentBody): array
+    {
+        /** @var array<string, array{count: int, pseudonyms: list<string>}> $socketPseudonyms */
+        $socketPseudonyms = [];
+        /** @var list<string> $splitOrdering */
+        $splitOrdering = [];
+        $componentBody = preg_replace_callback(
+            self::VARIABLE_PATTERN,
+            function ($match) use (&$socketPseudonyms, &$splitOrdering) {
+                $name = $match['name'];
+                if (!array_key_exists($name, $socketPseudonyms)) {
+                    $socketPseudonyms[$name] = ['count' => 0, 'pseudonyms' => []];
+                }
+                $count = $socketPseudonyms[$name]['count'];
+                $replacement = "_chunk_variable_{$name}_{$count}";
 
-			$socketPseudonyms[$name]['count']++;
-			$socketPseudonyms[$name]['pseudonyms'][] = $replacement;
-			$splitOrdering[] = $replacement;
+                $socketPseudonyms[$name]['count']++;
+                $socketPseudonyms[$name]['pseudonyms'][] = $replacement;
+                $splitOrdering[] = $replacement;
 
-			return $replacement;
-		}, $componentBody);
+                return $replacement;
+            },
+            $componentBody,
+        );
 
-		foreach ($socketPseudonyms as &$value) {
-			$value['count'] = 0;
-		}
+        foreach ($socketPseudonyms as &$value) {
+            $value['count'] = 0;
+        }
 
-		$sockets = [];
-		$count = 0;
-		foreach ($splitOrdering as $variableName)
-		{
-			$split = explode($variableName, $componentBody);
-			$chunkName = "_chunk_{$count}";
-			$sockets[$chunkName] = new Socket($chunkName, $split[0]);
-			$sockets[$variableName] = new Socket($variableName, '');
-			$count++;
-			$componentBody = $split[1] ?? '';
-		}
-		$chunkName = '_chunk_-1';
-		$sockets[$chunkName] = new Socket($chunkName, $componentBody);
+        $sockets = [];
+        $count = 0;
+        foreach ($splitOrdering as $variableName) {
+            $split = explode($variableName, $componentBody);
+            $chunkName = "_chunk_{$count}";
+            $sockets[$chunkName] = new Socket($chunkName, $split[0]);
+            $sockets[$variableName] = new Socket($variableName, '');
+            $count++;
+            $componentBody = $split[1] ?? '';
+        }
+        $chunkName = '_chunk_-1';
+        $sockets[$chunkName] = new Socket($chunkName, $componentBody);
 
-		return [
-			'sockets' => $sockets,
-			'pseudonyms' => array_map(fn($socket) => $socket = $socket['pseudonyms'], $socketPseudonyms),
-		];
-	}
+        return [
+            'sockets' => $sockets,
+            'pseudonyms' => array_map(fn($socket) => $socket = $socket['pseudonyms'], $socketPseudonyms),
+        ];
+    }
 }

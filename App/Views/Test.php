@@ -9,16 +9,15 @@ use ComponentPHP\Components\Models\Component;
 
 class Test extends AbstractTemplate
 {
-	public function test(): Component
-	{
-		return $this->get('test')
-			->fill('stuff', 'Its duplicated!')
-		;
-	}
-	
-	#[\Override]
-	protected function loadFiles(): void
-	{
-		$this->loadFile('test.html');
-	}
+    public function test(): Component
+    {
+        return $this->get('test')
+            ->fill('stuff', 'Its duplicated!');
+    }
+
+    #[\Override]
+    protected function loadFiles(): void
+    {
+        $this->loadFile('test.html');
+    }
 }
