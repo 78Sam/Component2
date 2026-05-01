@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace ComponentPHP\Components\Models;
 
 use ComponentPHP\Components\Exceptions\UndefinedSocketException;
-use ComponentPHP\Debug\DebugMetrics;
 use ComponentPHP\Logging\Logger;
 use ComponentPHP\Logging\Models\LoggingChannels;
 use ComponentPHP\Logging\Models\LoggingLevel;
@@ -14,19 +13,18 @@ class Component implements \Stringable
 {
     private const string VARIABLE_PATTERN = '/!@\(\s*\$(?<name>[a-zA-Z_]+\w*)\s*\)/';
 
-    /** @var array<string, string|Component> $sockets */
-    private array $sockets = [];
-
+    /** 
+	 * @param array<string, Socket> $sockets
+	 * @param array<string, list<string>> $socketPseudonyms
+	 */
     public function __construct(
         public readonly string $name,
-        public string $body,
-        ?array $sockets = null,
-    ) {
-        $this->sockets = $sockets ?? $this->findSockets();
-    }
+        private array $sockets,
+		private array $socketPseudonyms,
+    ) {}
 
     /**
-     * @param array{name: string, body: string, sockets: array<string, string|Component>} $properties
+     * @param array{name: string, sockets: array<string, Socket>, socketPseudonyms: array<string, list<string>>} $properties
      */
     public static function __set_state(array $properties): self
     {
@@ -48,7 +46,7 @@ class Component implements \Stringable
      */
     public function fill(string $name, string|Component $value, bool $raw = false): self
     {
-        if (!\array_key_exists($name, $this->sockets)) {
+        if (!\array_key_exists($name, $this->socketPseudonyms)) {
             Logger::singleLog(
                 "Attempted to fill an undefined socket '{$name}' in component '{$this->name}'",
                 level: LoggingLevel::Error,
@@ -68,63 +66,11 @@ class Component implements \Stringable
             );
         }
 
-        if ($raw || $value instanceof Component) {
-            $this->sockets[$name] = $value;
-        } else {
-            $this->sockets[$name] = htmlspecialchars($value);
-        }
+		foreach ($this->socketPseudonyms[$name] as $pseudonym)
+		{
+			$this->sockets[$pseudonym]->value = ($raw || $value instanceof Component) ? $value : htmlspecialchars($value);
+		}
 
         return $this;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function findSockets(): array
-    {
-        $performanceStart = DebugMetrics::getPerformanceSlice('Sockets start');
-
-        $matches = [];
-        preg_match_all(self::VARIABLE_PATTERN, $this->body, $matches);
-
-		$seenNames = []; // Store this in the class
-		$paramCount = 0;
-		$res = preg_replace_callback(self::VARIABLE_PATTERN, function ($match) use (&$seenNames, &$paramCount) {
-			$name = $match['name'];
-			if (!\array_key_exists($name, $seenNames)) {
-				$seenNames[$name] = [];
-			}
-
-			$seenNames[$name][] = "_param_{$paramCount}";
-			$paramCount++;
-
-			dump(explode($match[0], $this->body, 3)); // Maybe try replace it in body here?
-
-			return "!@(\${$name})";
-		}, $this->body);
-
-		dump($res, $seenNames);
-
-        // TODO(Sam): Duplicate variable names don't work
-
-        $result = [];
-        $content = $this->body;
-        for ($i = 0; $i < \count($matches[0]); $i++) {
-            $split = explode($matches[0][$i], $content);
-            $result["_chunk_{$i}"] = $split[0];
-            $result[$matches['name'][$i]] = '';
-            if (\count($split) > 1) {
-                $content = $split[1];
-            }
-        }
-        $result['_chunk_-1'] = $content;
-
-        $performance = DebugMetrics::getPerformanceSlice('Sockets end')->since($performanceStart)['seconds'];
-        Logger::singleLog(
-            "Computing sockets for component '{$this->name}' in {$performance}s",
-            channel: LoggingChannels::Templating,
-        );
-
-        return $result;
     }
 }

@@ -28,11 +28,6 @@ final class HomeController extends AbstractController
     #[Route(route: '/test', name: 'app_test')]
     public function test(): Response
     {
-    	$test = new Test();
-		$res = $test->test();
-		dump($res);
-		dump($res->render());
-
-    	return new Response('');
+    	return new Response(new Test()->test());
     }
 }
