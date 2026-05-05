@@ -22,28 +22,20 @@ class Component implements \Stringable, Cacheable
         private array $socketPseudonyms,
     ) {}
 
-	#[\Override]
-	public function _export(): array
-	{
-		return [
-			'name' => $this->name,
-			'sockets' => $this->sockets,
-			'socketPseudonyms' => $this->socketPseudonyms,
-		];
-	}
-
-	#[\Override]
-	public function _import(array $properties): self
-	{
-		return new self(...$properties);
-	}
-
-    /**
-     * @param array{name: string, sockets: array<string, Socket>, socketPseudonyms: array<string, list<string>>} $properties
-     */
-    public static function __set_state(array $properties): self
+    #[\Override]
+    public static function in(array $properties): self
     {
         return new self(...$properties);
+    }
+
+    #[\Override]
+    public function out(): array
+    {
+        return [
+            'name' => $this->name,
+            'sockets' => $this->sockets,
+            'socketPseudonyms' => $this->socketPseudonyms,
+        ];
     }
 
     public function __toString(): string

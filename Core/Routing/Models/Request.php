@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Routing\Models;
 
-readonly class Request implements \Stringable
+use ComponentPHP\Cache\Cacheable;
+
+readonly class Request implements \Stringable, Cacheable
 {
     /**
      * @param array<string, string> $get
@@ -21,12 +23,24 @@ readonly class Request implements \Stringable
         public ?int $port = null,
     ) {}
 
-    /**
-     * @param array{scheme: string, host: string, route: string, get: array, post: array, method: string, time: int, port: ?int} $properties
-     */
-    public static function __set_state($properties): self
+    #[\Override]
+    public static function in(array $properties): self
     {
-        return new Request(...$properties);
+        return new self(...$properties);
+    }
+
+    #[\Override]
+    public function out(): array
+    {
+        return [
+            'scheme' => $this->scheme,
+            'host' => $this->host,
+            'route' => $this->route,
+            'get' => $this->get,
+            'post' => $this->post,
+            'method' => $this->method,
+            'time' => $this->time,
+        ];
     }
 
     public function __toString(): string

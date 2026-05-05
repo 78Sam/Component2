@@ -4,17 +4,28 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Components\Models;
 
-class Socket
+use ComponentPHP\Cache\Cacheable;
+
+class Socket implements Cacheable
 {
     public function __construct(
         public string $name,
         public string|Component $value,
     ) {}
 
-    /** @param array{name: string, value: string|Component} $properties */
-    public static function __set_state(array $properties): self
+    #[\Override]
+    public static function in(array $properties): self
     {
         return new self(...$properties);
+    }
+
+    #[\Override]
+    public function out(): array
+    {
+        return [
+            'name' => $this->name,
+            'value' => $this->value,
+        ];
     }
 
     public function __toString()

@@ -48,23 +48,23 @@ abstract class AbstractTemplate
         }
 
         $path = $absolutePath ? $filename : Config::COMPONENTS_DIR . "/{$filename}";
-        $filenameNoExtension = pathinfo($filename, PATHINFO_FILENAME);
+        $cacheFilename = str_replace('/', '_', $filename);
 
         /** @var array<string, Component> $components */
         $components = [];
         if (Config::IS_PROD) {
-            $components = $this->componentCache->readComponentsFileCache($filenameNoExtension);
+            $components = $this->componentCache->readComponentsFileCache($cacheFilename);
         }
 
         // If we are on DEV, or we didn't get any components from our cache, try and build them
         if (Config::IS_DEV || $components === []) {
             $content = \file_get_contents($path);
             if ($content === false) {
-                throw new FileNotFoundException(message: "Cannot find component at '{$path}'", code: 404);
+                throw new FileNotFoundException(message: "Cannot find component file at '{$path}'", code: 404);
             }
 
             $components = $this->buildComponents($content);
-            $this->componentCache->writeCache($filenameNoExtension, $components);
+            $this->componentCache->writeCache($cacheFilename, $components);
         }
 
         $this->components[$filename] = $components;
@@ -75,10 +75,25 @@ abstract class AbstractTemplate
     /**
      * Get a clone of the specified component
      *
+     * @param string $component Component name
+     * @param ?string $filename Required if there is a component name overlap
+     *
      * @throws ComponentNotFoundException
      */
-    public function get(string $component): Component
+    public function get(string $component, ?string $filename = null): Component
     {
+        if ($filename !== null) {
+            if (!\array_key_exists($filename, $this->components)) {
+                throw new FileNotFoundException(message: "Cannot find component file at '{$filename}'", code: 404);
+            }
+
+            if (!\array_key_exists($component, $this->components[$filename])) {
+                throw new ComponentNotFoundException("Unable to find component '{$component}'");
+            }
+
+            return clone $this->components[$filename][$component];
+        }
+
         foreach (\array_values($this->components) as $components) {
             if (\array_key_exists($component, $components)) {
                 return clone $components[$component];
@@ -113,22 +128,13 @@ abstract class AbstractTemplate
     public function collect(array $items, string $separator = ''): Component
     {
         $sockets = [];
-        $socketPseudonyms = [];
-        $count = 0;
-        foreach ($items as $item) {
-            $chunk = "_chunk_{$count}";
-            $sockets[$chunk] = $item;
-            $socketPseudonyms[$chunk] = [$chunk];
-            $count++;
-
-            $chunk = "_chunk_{$count}";
-            $sockets["_chunk_{$count}"] = $separator;
-            $socketPseudonyms[$chunk] = [$chunk];
-            $count++;
+        for ($chunk = 0; $chunk < \count($items); $chunk++) {
+            $sockets["_chunk_{$chunk}"] = $items[$chunk];
+            $sockets['_chunk_' . ($chunk + 1)] = $separator;
         }
         array_pop($sockets);
 
-        return new Component('_collector', $sockets, $socketPseudonyms);
+        return new Component('', $sockets, []);
     }
 
     /**

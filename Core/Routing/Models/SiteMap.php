@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Routing\Models;
 
-class SiteMap
+use ComponentPHP\Cache\Cacheable;
+
+class SiteMap implements Cacheable
 {
     /**
      * @param array<string, SiteMapEntry> $routes
@@ -15,12 +17,19 @@ class SiteMap
         public array $names = [],
     ) {}
 
-    /**
-     * @param array{routes: array<string, SiteMapEntry>, names: array<string, SiteMapEntry>} $properties
-     */
-    public static function __set_state($properties): self
+    #[\Override]
+    public static function in(array $properties): self
     {
-        return new SiteMap(...$properties);
+        return new self(...$properties);
+    }
+
+    #[\Override]
+    public function out(): array
+    {
+        return [
+            'routes' => $this->routes,
+            'names' => $this->names,
+        ];
     }
 
     public function addSiteMapEntry(SiteMapEntry $siteMapEntry): bool

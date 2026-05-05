@@ -6,7 +6,7 @@ namespace ComponentPHP\Cache;
 
 interface Cacheable
 {
-	public function _export(): array;
+    public static function in(array $properties): self;
 
-	public function _import(array $properties): self;
+    public function out(): array;
 }

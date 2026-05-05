@@ -73,13 +73,19 @@ function exportIt(mixed $data): mixed
 	}
 
 	if (is_string($data)) {
-		return "'{$data}'";
+		return var_export($data, return: true);
 	}
 
 	return $data;
 }
 
-$p = new Test(x: ['hi', 'hello', 123], y: [new ABC('sam'), new ABC('uma'), new \DateTime('now')]);
+$p = new Test(x: ['hi', 'hello', 123, "it's cool"], y: [new ABC('sam'), new ABC('uma'), new \DateTime('now')]);
 
 $export = '$new = ' . exportIt($p) . ';';
 print_r($export);
+
+$new = Test::create(['x' => [0 => 'hi', 1 => 'hello', 2 => 123, 3 => 'it\'s cool'], 'y' => [0 => ABC::create(['x' => 'sam']), 1 => ABC::create(['x' => 'uma']), 2 => \DateTime::__set_state(array(
+   'date' => '2026-05-05 18:11:31.496467',
+   'timezone_type' => 3,
+   'timezone' => 'UTC',
+))]]);

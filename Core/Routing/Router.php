@@ -55,15 +55,15 @@ class Router
 
         // If we are running in production, read the sitemap from cache
 
-        $cacheValue = $this->routingCache->readSiteMap();
-        if ($cacheValue === null) {
+        $cachedSiteMap = $this->routingCache->readSiteMap();
+        if ($cachedSiteMap === null) {
             $this->logger->log('Failed to read cached site map for prod build', level: LoggingLevel::Warning);
             $this->drawFullSiteMap();
 
             return;
         }
 
-        $this->siteMap = $cacheValue;
+        $this->siteMap = $cachedSiteMap;
     }
 
     /**

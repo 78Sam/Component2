@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Routing\Models;
 
-use ComponentPHP\Routing\Controllers\AbstractController;
+use ComponentPHP\Cache\Cacheable;
 
-readonly class SiteMapEntry
+readonly class SiteMapEntry implements Cacheable
 {
     /**
      * @param class-string<AbstractController> $class
@@ -20,11 +20,21 @@ readonly class SiteMapEntry
         public array $HTTPVerbs = [],
     ) {}
 
-    /**
-     * @param array{route: string, name: string, class: string, method: string, HTTPVerbs: array} $properties
-     */
-    public static function __set_state($properties): self
+    #[\Override]
+    public static function in(array $properties): self
     {
-        return new SiteMapEntry(...$properties);
+        return new self(...$properties);
+    }
+
+    #[\Override]
+    public function out(): array
+    {
+        return [
+            'route' => $this->route,
+            'name' => $this->name,
+            'class' => $this->class,
+            'method' => $this->method,
+            'HTTPVerbs' => $this->HTTPVerbs,
+        ];
     }
 }

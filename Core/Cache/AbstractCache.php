@@ -30,9 +30,11 @@ abstract class AbstractCache
                 continue;
             }
 
-            file_put_contents($file, self::CACHE_LINE_HEADER . var_export($cachedValue['data'], return: true) . ";\n");
+            file_put_contents($file, self::CACHE_LINE_HEADER . "{$this->exportData($cachedValue['data'])};\n");
         }
     }
+
+    abstract protected function getDir(): string;
 
     public function writeCache(string $cacheLine, mixed $data): void
     {
@@ -85,5 +87,28 @@ abstract class AbstractCache
         return $data;
     }
 
-    abstract protected function getDir(): string;
+    private function exportData(mixed $data): mixed
+    {
+        if (is_array($data)) {
+            $items = [];
+            foreach ($data as $key => $value) {
+                $items[] = "{$this->exportData($key)} => {$this->exportData($value)}";
+            }
+
+            return '[' . implode(', ', $items) . ']';
+        }
+
+        if (is_object($data)) {
+            if ($data instanceof Cacheable) {
+                $properties = $this->exportData($data->out());
+                $class = $data::class;
+
+                return "{$class}::in({$properties})";
+            }
+
+            return var_export($data, return: true);
+        }
+
+        return is_string($data) ? var_export($data, return: true) : $data;
+    }
 }
