@@ -2,57 +2,84 @@
 
 declare(strict_types=1);
 
-// $variablePattern = '/!@\(\s*\$(?<name>[a-zA-Z_]+\w*)\s*\)/';
+interface Thing
+{
+	public function export(): array;
+}
 
-// $html = file_get_contents('test.html');
+class ABC implements Thing
+{
+	public function __construct(
+		public string $x,
+	) {
+	}
 
-// $chunks = [];
+	public function export(): array
+	{
+		return [
+			'x' => $this->x,
+		];
+	}
 
-// /** @var array<string, array{count: int, pseudonyms: list<string>}> $variableNames */
-// $variableNames = [];
-// $splitOrdering = [];
-// $html = preg_replace_callback($variablePattern, function ($match) use (&$variableNames, &$splitOrdering) {
-// 	$name = $match['name'];
-// 	if (!array_key_exists($name, $variableNames))
-// 	{
-// 		$variableNames[$name] = ['count' => 0, 'pseudonyms' => []];
-// 	}
-// 	$count = $variableNames[$name]['count'];
-// 	$replacement = "_chunk_variable_{$name}_{$count}";
+	public static function create(array $properties): self
+	{
+		return new self(...$properties);
+	}
+}
 
-// 	$variableNames[$name]['count']++;
-// 	$variableNames[$name]['pseudonyms'][] = $replacement;
-// 	$splitOrdering[] = $replacement;
+class Test implements Thing
+{
+	public function __construct(
+		public array $x,
+		public array $y,
+	) {}
 
-// 	return $replacement;
-// }, $html);
+	public function export(): array
+	{
+		return [
+			'x' => $this->x,
+			'y' => $this->y,
+		];
+	}
 
-// foreach ($variableNames as $name => &$value)
-// {
-// 	$value['count'] = 0;
-// }
+	public static function create(array $properties): self
+	{
+		return new self(...$properties);
+	}
+}
 
-// print_r($html);
-// print_r($variableNames);
+function exportIt(mixed $data): mixed
+{
+	if (is_array($data)) {
+		$items = [];
+		foreach ($data as $key => $value) {
+			$value = exportIt($value);
+			$key = exportIt($key);
+			$items[] = "{$key} => {$value}";
+		}
 
-// $chunks = [];
-// $count = 0;
-// $body = $html;
-// foreach ($splitOrdering as $variableName)
-// {
-// 	$split = explode($variableName, $body);
-// 	$chunks["_chunk_{$count}"] = $split[0];
-// 	$count++;
-// 	$chunks[$variableName] = '';
-// 	$body = $split[1] ?? '';
-// }
-// $chunks['_chunk_-1'] = $body;
+		return '[' . implode(', ', $items) . ']';
+	}
 
-// print_r($chunks);
+	if (is_object($data)) {
+		if ($data instanceof Thing) {
+			$properties = exportIt($data->export());
+			$class = $data::class;
 
-$x = [
-	'a' => ['b'=> 0, 'c' => ['hi', 'hello']],
-	'b' => ['b'=> 2, 'c' => ['yo', 'sup']],
-];
+			return "{$class}::create({$properties})";
+		}
 
-print_r(array_map(fn ($item) => $item = $item['c'], $x));
+		return var_export($data, return: true);
+	}
+
+	if (is_string($data)) {
+		return "'{$data}'";
+	}
+
+	return $data;
+}
+
+$p = new Test(x: ['hi', 'hello', 123], y: [new ABC('sam'), new ABC('uma'), new \DateTime('now')]);
+
+$export = '$new = ' . exportIt($p) . ';';
+print_r($export);

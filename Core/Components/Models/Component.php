@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Components\Models;
 
+use ComponentPHP\Cache\Cacheable;
 use ComponentPHP\Components\Exceptions\UndefinedSocketException;
 use ComponentPHP\Logging\Logger;
 use ComponentPHP\Logging\Models\LoggingChannels;
 use ComponentPHP\Logging\Models\LoggingLevel;
 
-class Component implements \Stringable
+class Component implements \Stringable, Cacheable
 {
-    private const string VARIABLE_PATTERN = '/!@\(\s*\$(?<name>[a-zA-Z_]+\w*)\s*\)/';
-
     /**
      * @param array<string, Socket> $sockets
      * @param array<string, list<string>> $socketPseudonyms
@@ -22,6 +21,22 @@ class Component implements \Stringable
         private array $sockets,
         private array $socketPseudonyms,
     ) {}
+
+	#[\Override]
+	public function _export(): array
+	{
+		return [
+			'name' => $this->name,
+			'sockets' => $this->sockets,
+			'socketPseudonyms' => $this->socketPseudonyms,
+		];
+	}
+
+	#[\Override]
+	public function _import(array $properties): self
+	{
+		return new self(...$properties);
+	}
 
     /**
      * @param array{name: string, sockets: array<string, Socket>, socketPseudonyms: array<string, list<string>>} $properties
