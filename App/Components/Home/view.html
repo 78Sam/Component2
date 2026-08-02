@@ -1,0 +1,9 @@
+!@( component|songs )
+<div class="flex vertical">
+    !@( $songs )
+</div>
+!@( end )
+
+!@( component|song )
+<audio src="!@( $path )" controls>!@( $name ) (!@( $artist ))</audio>
+!@(end)

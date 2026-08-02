@@ -1,5 +1,9 @@
 Cacheable interface / abstract class that handles the __set_state for you?
 
+Make logger better
+
+Need to clear cache lines every once in a while
+
 
 Forms:
 

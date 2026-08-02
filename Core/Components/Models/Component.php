@@ -7,7 +7,7 @@ namespace ComponentPHP\Components\Models;
 use ComponentPHP\Cache\Cacheable;
 use ComponentPHP\Components\Exceptions\UndefinedSocketException;
 use ComponentPHP\Logging\Logger;
-use ComponentPHP\Logging\Models\LoggingChannels;
+use ComponentPHP\Logging\Models\LoggingChannel;
 use ComponentPHP\Logging\Models\LoggingLevel;
 
 class Component implements \Stringable, Cacheable
@@ -43,6 +43,16 @@ class Component implements \Stringable, Cacheable
         return implode('', $this->sockets);
     }
 
+    public function __clone()
+    {
+        $clonedSockets = [];
+        foreach ($this->sockets as $key => $socket)
+        {
+            $clonedSockets[$key] = clone $socket;
+        }
+        $this->sockets = $clonedSockets;
+    }
+
     public function render(): string
     {
         return $this->__toString();
@@ -57,7 +67,7 @@ class Component implements \Stringable, Cacheable
             Logger::singleLog(
                 "Attempted to fill an undefined socket '{$name}' in component '{$this->name}'",
                 level: LoggingLevel::Error,
-                channel: LoggingChannels::Templating,
+                channel: LoggingChannel::Templating,
             );
 
             throw new UndefinedSocketException(
@@ -69,7 +79,7 @@ class Component implements \Stringable, Cacheable
             Logger::singleLog(
                 "Potentially attempting to fill generated socket '{$name}'",
                 level: LoggingLevel::Warning,
-                channel: LoggingChannels::Templating,
+                channel: LoggingChannel::Templating,
             );
         }
 

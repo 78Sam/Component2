@@ -6,7 +6,7 @@ namespace ComponentPHP\Routing;
 
 use ComponentPHP\Cache\Routing\RoutingCache;
 use ComponentPHP\Logging\Logger;
-use ComponentPHP\Logging\Models\LoggingChannels;
+use ComponentPHP\Logging\Models\LoggingChannel;
 use ComponentPHP\Logging\Models\LoggingLevel;
 use ComponentPHP\Routing\Attributes\Route;
 use ComponentPHP\Routing\Controllers\AbstractController;
@@ -40,7 +40,7 @@ class Router
 
     public function __construct()
     {
-        $this->logger = new Logger(channel: LoggingChannels::Router);
+        $this->logger = new Logger(channel: LoggingChannel::Router);
         $this->routingCache = new RoutingCache();
         $this->siteMap = new SiteMap();
 

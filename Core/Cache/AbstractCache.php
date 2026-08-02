@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace ComponentPHP\Cache;
 
 use ComponentPHP\Logging\Logger;
-use ComponentPHP\Logging\Models\LoggingChannels;
+use ComponentPHP\Logging\Models\LoggingChannel;
 use ComponentPHP\Logging\Models\LoggingLevel;
 
 abstract class AbstractCache
@@ -18,7 +18,7 @@ abstract class AbstractCache
 
     public function __construct()
     {
-        $this->logger = new Logger(LoggingChannels::Cache);
+        $this->logger = new Logger(LoggingChannel::Cache);
     }
 
     public function __destruct()

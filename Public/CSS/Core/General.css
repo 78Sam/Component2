@@ -4,6 +4,8 @@
     box-sizing: border-box;
 }
 
+/*  */
+
 .flex {
     display: flex;
 }
@@ -14,4 +16,8 @@
 
 .inline {
     align-items: center;
+}
+
+.vertical {
+    flex-direction: column;
 }

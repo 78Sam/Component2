@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace ComponentPHP\Logging;
 
 use ComponentPHP\Debug\DebugMetrics;
-use ComponentPHP\Logging\Models\LoggingChannels;
+use ComponentPHP\Logging\Models\LoggingChannel;
 use ComponentPHP\Logging\Models\LoggingLevel;
 use ComponentPHP\Utility\Config;
 
@@ -14,7 +14,7 @@ class Logger
     private const string COMBINED_LOG_DIRECTORY = Config::LOG_DIR . '/Combined';
 
     public function __construct(
-        public LoggingChannels $channel = LoggingChannels::Core,
+        public LoggingChannel $channel = LoggingChannel::Core,
     ) {}
 
     public function log(string $message, LoggingLevel $level = LoggingLevel::Info): self
@@ -27,7 +27,7 @@ class Logger
     public static function singleLog(
         string $message,
         LoggingLevel $level = LoggingLevel::Info,
-        LoggingChannels $channel = LoggingChannels::Core,
+        LoggingChannel $channel = LoggingChannel::Core,
     ): void {
         $directory = self::setupDirectories($channel);
 
@@ -53,7 +53,7 @@ class Logger
         }
     }
 
-    private static function setupDirectories(LoggingChannels $channel): string
+    private static function setupDirectories(LoggingChannel $channel): string
     {
         $directory = Config::LOG_DIR . "/{$channel->value}";
         if (!is_dir($directory)) {

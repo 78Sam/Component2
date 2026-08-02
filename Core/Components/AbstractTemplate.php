@@ -10,7 +10,7 @@ use ComponentPHP\Components\Exceptions\FileNotFoundException;
 use ComponentPHP\Components\Models\Component;
 use ComponentPHP\Components\Models\Socket;
 use ComponentPHP\Logging\Logger;
-use ComponentPHP\Logging\Models\LoggingChannels;
+use ComponentPHP\Logging\Models\LoggingChannel;
 use ComponentPHP\Utility\Config;
 
 abstract class AbstractTemplate
@@ -26,7 +26,7 @@ abstract class AbstractTemplate
 
     public function __construct()
     {
-        $this->logger = new Logger(LoggingChannels::Templating);
+        $this->logger = new Logger(LoggingChannel::Templating);
         $this->componentCache = new ComponentCache();
         $this->loadFiles();
     }

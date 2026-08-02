@@ -6,8 +6,9 @@ namespace ComponentPHP\Logging\Models;
 
 enum LoggingLevel: string
 {
-    case Info = 'Info';
-    case Warning = 'Warning';
-    case Error = 'Error';
     case Critical = 'Critical';
+    case Error = 'Error';
+    case Warning = 'Warning';
+    case Info = 'Info';
+    case Debug = 'Debug';
 }

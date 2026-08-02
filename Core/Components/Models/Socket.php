@@ -13,6 +13,11 @@ class Socket implements Cacheable
         public string|Component $value,
     ) {}
 
+    public function __clone()
+    {
+        $this->value = $this->value instanceof Component ? clone $this->value : $this->value;
+    }
+
     #[\Override]
     public static function in(array $properties): self
     {

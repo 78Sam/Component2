@@ -12,7 +12,7 @@ use ComponentPHP\Routing\Models\Response;
 final class HomeController extends AbstractController
 {
     #[Route(route: '/', name: 'app_home', HTTPVerbs: ['GET'])]
-    public function index(): Response
+    public function view(): Response
     {
         return new Response(new Home()->home());
     }

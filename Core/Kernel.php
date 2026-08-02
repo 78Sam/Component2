@@ -7,7 +7,7 @@ namespace ComponentPHP;
 use ComponentPHP\Debug\DebugMetrics;
 use ComponentPHP\Debug\Models\PerformanceSlice;
 use ComponentPHP\Logging\Logger;
-use ComponentPHP\Logging\Models\LoggingChannels;
+use ComponentPHP\Logging\Models\LoggingChannel;
 use ComponentPHP\Logging\Models\LoggingLevel;
 use ComponentPHP\Routing\Router;
 use ComponentPHP\Utility\Config;
@@ -25,7 +25,7 @@ class Kernel
 
         $mode = Config::IS_DEV ? 'DEV' : 'PROD';
 
-        $this->logger = new Logger(LoggingChannels::Core);
+        $this->logger = new Logger(LoggingChannel::Core);
         $this->logger->log("Starting Kernel in {$mode} mode");
 
         try {

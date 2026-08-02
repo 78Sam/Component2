@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ComponentPHP\Logging\Models;
 
-enum LoggingChannels: string
+enum LoggingChannel: string
 {
     case Cache = 'Cache';
     case Core = 'Core';
