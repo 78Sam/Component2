@@ -13,3 +13,17 @@ Database:
     - Oh shit we could actually just use the same tech for SQL files as components
 
 Static files (css, js, etc.):
+
+
+
+
+
+[
+Nav bar
+content
+player
+]
+
+login
+register
+settings

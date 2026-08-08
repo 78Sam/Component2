@@ -105,14 +105,15 @@ abstract class AbstractTemplate
 
     /**
      * @param list<array<string, string|Component>> $values
+     * @param ?string $filename Required if there is a component name overlap
      *
      * @return list<Component>
      */
-    public function stack(string $componentName, array $values): array
+    public function stack(string $componentName, array $values, ?string $filename = null): array
     {
         $components = [];
         foreach ($values as $row) {
-            $component = $this->get($componentName);
+            $component = $this->get($componentName, $filename);
             foreach ($row as $key => $value) {
                 $component->fill($key, $value);
             }
@@ -135,6 +136,21 @@ abstract class AbstractTemplate
         array_pop($sockets);
 
         return new Component('', $sockets, []);
+    }
+
+    /**
+     * @param list<array<string, string|Component>> $values
+     * @param ?string $filename Required if there is a component name overlap
+     *
+     * @return Component
+     */
+    public function quickCollect(
+        string $componentName,
+        array $values,
+        string $separator = '',
+        ?string $filename = null
+    ): Component {
+        return $this->collect($this->stack($componentName, $values, $filename), $separator);
     }
 
     /**

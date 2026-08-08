@@ -137,6 +137,7 @@ class Router
         $this->logger->log('Handling response');
 
         http_response_code($response->responseCode);
+        header("Content-Type: {$response->contentType}; charset={$response->charset}");
         echo "{$response->content}";
 
         if (str_starts_with($this->coreRequest->route, '/_debug')) {

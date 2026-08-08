@@ -12,7 +12,12 @@ class FileSystem
 
     public function toRelativePath(string $path): string
     {
-        return explode('/Public/', $path)[1];
+        return explode('/Public/', $this->sanitisePath($path))[1];
+    }
+
+    public function sanitisePath(string $path): string
+    {
+        return str_replace(DIRECTORY_SEPARATOR, '/', $path);
     }
 
     /**
@@ -20,7 +25,7 @@ class FileSystem
      */
     public function iterate(string $path): \Generator
     {
-        $path = ltrim($path, '/');
+        $path = ltrim($this->sanitisePath($path), '/');
         $fullPath = self::PUBLIC_FOLDER . "/{$path}";
         $recursiveDirectoryIterator = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($fullPath, FilesystemIterator::SKIP_DOTS),

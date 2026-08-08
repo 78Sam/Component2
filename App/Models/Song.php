@@ -8,7 +8,7 @@ readonly class Song
 {
     public function __construct(
         public string $path,
-        public string $name,
+        public string $title,
         public string $artist,
     ) {
     }

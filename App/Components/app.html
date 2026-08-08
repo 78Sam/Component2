@@ -7,14 +7,16 @@
     <title>!@( $title )</title>
     <link rel="stylesheet" href="CSS/Core/General.css">
     !@( $css )
+    <script src="JS/htmx.min.js"></script>
     !@( $js )
 </head>
 <body>
     !@( $body )
+    !@( $script )
 </body>
 </html>
 !@( end )
 
 !@( component|stylesheet )
-<link rel="stylesheet" href="!@( $file )">
+<link rel="stylesheet" href="!@( $filename )">
 !@( end )
