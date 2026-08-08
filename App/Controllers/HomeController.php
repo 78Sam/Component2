@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Views\Music;
+use ComponentPHP\Database\Database;
 use ComponentPHP\Routing\Attributes\Route;
 use ComponentPHP\Routing\Controllers\AbstractController;
 use ComponentPHP\Routing\Models\Response;
@@ -27,5 +28,14 @@ final class HomeController extends AbstractController
     public function hxArtists(): Response
     {
         return new Response(new Music()->artists());
+    }
+
+    #[Route(route: '/test', name: 'test', HTTPVerbs: ['GET'])]
+    public function test(): Response
+    {
+        $db = new Database();
+        $db->connect();
+
+        return new Response('Hi!');
     }
 }

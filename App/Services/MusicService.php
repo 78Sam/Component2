@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\Artist;
 use App\Models\Song;
 use ComponentPHP\Files\FileSystem;
 
@@ -11,12 +12,16 @@ class MusicService
 {
     private FileSystem $fileSystem;
 
-    /** @var array<int, string> */
-    private array $config;
+    /** @var array<string, Artist> */
+    private array $artists = [];
 
     public function __construct() {
         $this->fileSystem = new FileSystem();
-        $this->config = require_once FileSystem::PUBLIC_FOLDER . '/Assets/Music/Schema.php';
+        $artistMappings = require_once FileSystem::PUBLIC_FOLDER . '/Assets/Music/Schema.php';
+        foreach ($artistMappings as $artistKey => $artistName)
+        {
+            $this->artists[$artistKey] = new Artist($artistKey, $artistName);
+        }
     }
 
     /**
@@ -36,7 +41,7 @@ class MusicService
             $songs[] = new Song(
                 $this->fileSystem->toRelativePath($path),
                 $this->filenameNoExtension($file),
-                $this->getArtistName($path),
+                $this->getArtistByPath($path),
             );
         }
 
@@ -44,18 +49,22 @@ class MusicService
     }
 
     /**
-     * @return list<string>
+     * @return list<Artist>
      */
     public function getAllArtists(): array
     {
-        return array_values($this->config);
+        return array_values($this->artists);
     }
 
-    private function getArtistName(string $songPath): string
+    private function getArtistByPath(string $songPath): Artist
     {
-        $artistKey = array_last(explode('/', dirname($songPath)));
+        $artistKey = array_last(explode(DIRECTORY_SEPARATOR, dirname($songPath)));
+        if (!array_key_exists($artistKey, $this->artists))
+        {
+            throw new \Exception("Cannot find artist for key '{$artistKey}'");
+        }
         
-        return $this->config[$artistKey] ?? 'Unknown artist';
+        return $this->artists[$artistKey];
     }
 
     private function filenameNoExtension(\SplFileInfo $file): string

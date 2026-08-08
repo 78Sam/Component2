@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
-    1 => 'Sam McCormack',
-    2 => 'Sienna Sleep',
+    'sam-mccormack' => 'Sam McCormack',
+    'sienna-sleep' => 'Sienna Sleep',
+    'above-and-beyond' => 'Above & Beyond',
 ];

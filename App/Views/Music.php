@@ -36,7 +36,16 @@ class Music extends AbstractTemplate
 
     public function songs(): Component
     {
-        $songs = array_map(fn(Song $song) => (array) $song, $this->musicService->getAllSongs());
+        $songs = [];
+        foreach ($this->musicService->getAllSongs() as $song)
+        {
+            $songs[] = [
+                'title' => $song->title,
+                'artist' => $song->artist->name,
+                'path' => $song->path,
+            ];
+        }
+
         $songsComponent = $this
             ->get('songs')
             ->fill('songs', $this->quickCollect('song', $songs))
@@ -47,16 +56,15 @@ class Music extends AbstractTemplate
 
     public function artists(): Component
     {
-        $artists = $this->musicService->getAllArtists();
-        $artistsFormatted = [];
-        foreach ($artists as $artist)
+        $artists = [];
+        foreach ($this->musicService->getAllArtists() as $artist)
         {
-            $artistsFormatted[] = ['artist' => $artist];
+            $artists[] = ['artist' => $artist->name];
         }
 
         $artistsComponent = $this
             ->get('artists')
-            ->fill('artists', $this->quickCollect('artist', $artistsFormatted))
+            ->fill('artists', $this->quickCollect('artist', $artists))
         ;
 
         return $artistsComponent;
