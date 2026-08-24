@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ComponentPHP\Debug\Models;
+namespace Core\Debug\Models;
 
 readonly class Backtrace implements \Stringable
 {

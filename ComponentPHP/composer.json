@@ -3,11 +3,13 @@
     "type": "project",
     "autoload": {
         "psr-4": {
-            "ComponentPHP\\": "Core/"
+            "Core\\": "Core/",
+            "Tests\\": "Tests/"
         },
         "files": [
-            "Core/Utility/Stubs.php",
-            "Core/Utility/Functions.php"
+            "Core/Utility/Global/Stubs.php",
+            "Core/Utility/Global/Functions.php",
+            "Core/Utility/Global/Constants.php"
         ]
     },
     "authors": [

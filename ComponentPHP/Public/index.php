@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use ComponentPHP\Kernel;
+use Core\Kernel;
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 

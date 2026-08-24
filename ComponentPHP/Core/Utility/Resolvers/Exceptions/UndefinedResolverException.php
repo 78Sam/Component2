@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ComponentPHP\Utility\Resolvers\Exceptions;
+namespace Core\Utility\Resolvers\Exceptions;
 
 class UndefinedResolverException extends \Exception
 {

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace ComponentPHP\Debug\Models;
+namespace Core\Debug\Models;
 
-use ComponentPHP\Debug\DebugMetrics;
+use Core\Debug\DebugMetrics;
 
 readonly class PerformanceSlice
 {

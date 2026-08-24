@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ComponentPHP\Debug;
+namespace Core\Debug;
 
-use ComponentPHP\Debug\Models\Backtrace;
-use ComponentPHP\Debug\Models\PerformanceSlice;
+use Core\Debug\Models\Backtrace;
+use Core\Debug\Models\PerformanceSlice;
 
 class DebugMetrics
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ComponentPHP\Routing\Models;
+namespace Core\Routing\Models;
 
 class Request
 {

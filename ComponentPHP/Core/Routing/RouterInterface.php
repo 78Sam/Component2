@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ComponentPHP\Routing;
+namespace Core\Routing;
 
-use ComponentPHP\Routing\Models\Request;
-use ComponentPHP\Routing\Models\Response;
+use Core\Routing\Models\Request;
+use Core\Routing\Models\Response;
 
 interface RouterInterface
 {

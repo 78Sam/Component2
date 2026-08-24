@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace ComponentPHP;
 
-use ComponentPHP\Debug\DebugMetrics;
-use ComponentPHP\Routing\Models\Request;
-use ComponentPHP\Routing\RouterInterface;
-use ComponentPHP\Utility\Resolvers\RequestResolver;
+use Core\Debug\DebugMetrics;
+use Core\Routing\Models\Request;
+use Core\Routing\RouterInterface;
+use Core\Utility\Resolvers\RequestResolver;
 
 class Kernel
 {
