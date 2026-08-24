@@ -1,0 +1,76 @@
+<?php
+
+declare(strict_types=1);
+
+use ComponentPHP\Utility\Resolvers\RequestResolver;
+
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+
+// Defaults, custom types, required, 
+
+$req = [
+    "AUTH_TYPE" => null,
+    "CONTENT_LENGTH" => null,
+    "CONTENT_TYPE" => null,
+    "DOCUMENT_ROOT" => '/home/ComponentPHP/Public',
+    "DOCUMENT_URI" => '/index.php',
+    "GATEWAY_INTERFACE" => 'CGI/1.1',
+    "HOME" => '/root',
+    "HOSTNAME" => '541192fb3269',
+    "HTTP_ACCEPT_ENCODING" => 'gzip, deflate, br, zstd',
+    "HTTP_ACCEPT_LANGUAGE" => 'en-GB,en;q=0.9',
+    "HTTP_ACCEPT" => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    "HTTP_CONNECTION" => 'keep-alive',
+    "HTTP_DNT" => 1,
+    "HTTP_HOST" => 'localhost:8080',
+    "HTTP_PRIORITY" => 'u=0, i',
+    "HTTP_SEC_FETCH_DEST" => 'document',
+    "HTTP_SEC_FETCH_MODE" => 'navigate',
+    "HTTP_SEC_FETCH_SITE" => 'none',
+    "HTTP_SEC_FETCH_USER" => '?1',
+    "HTTP_SEC_GPC" => 1,
+    "HTTP_UPGRADE_INSECURE_REQUESTS" => 1,
+    "HTTP_USER_AGENT" => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:153.0) Gecko/20100101 Firefox/153.0',
+    "HTTPS" => null,
+    "OLDPWD" => '/',
+    "PATH_INFO" => null,
+    "PATH" => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+    "PHP_SELF" => '/index.php',
+    "PWD" => '/home/ComponentPHP',
+    "QUERY_STRING" => 'how=10&areyou=lil',
+    "REMOTE_ADDR" => '192.168.65.1',
+    "REMOTE_HOST" => '192.168.65.1',
+    "REMOTE_IDENT" => null,
+    "REMOTE_PORT" => 61563,
+    "REQUEST_METHOD" => 'GET',
+    "REQUEST_SCHEME" => 'http',
+    "REQUEST_TIME_FLOAT" => 1787167764.4714,
+    "REQUEST_TIME" => 1787167764,
+    "REQUEST_URI" => '/hello?how=10&areyou=lil',
+    "SCRIPT_FILENAME" => '/home/ComponentPHP/Public/index.php',
+    "SCRIPT_NAME" => '/index.php',
+    "SERVER_NAME" => 'localhost',
+    "SERVER_PORT" => 8080,
+    "SERVER_PROTOCOL" => 'HTTP/1.1',
+    "SERVER_SOFTWARE" => 'FrankenPHP',
+    "SHLVL" => 1,
+    "SSL_CIPHER" => null,
+    "SSL_PROTOCOL" => null,
+];
+
+$p = new RequestResolver();
+$t = $p->resolve(
+    [
+        'SERVER_NAME' => 'string',
+        'HTTP_HOST' => '?string',
+        'REQUEST_SCHEME' => '?string',
+        'HTTPS' => '?string',
+        'REQUEST_URI' => 'string',
+        'SERVER_PORT' => 'int',
+        'QUERY_STRING' => 'string',
+        'REQUEST_METHOD' => 'string',
+        'REQUEST_TIME' => 'int',
+    ],
+    $req
+);
+print_r($t);

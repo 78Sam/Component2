@@ -1,0 +1,20 @@
+{
+    "name": "sammccormack/component-php",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "ComponentPHP\\": "Core/"
+        },
+        "files": [
+            "Core/Utility/Stubs.php",
+            "Core/Utility/Functions.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "Sam",
+            "email": "samvjsmccormack@gmail.com"
+        }
+    ],
+    "require": {}
+}

@@ -1,0 +1,15 @@
+{
+    frankenphp {
+        num_threads 8
+        worker {
+            file ./Public/index.php
+			num 4
+			watch
+        }
+    }
+}
+
+:8080 {
+    root /home/ComponentPHP/Public
+	php_server
+}

@@ -1,0 +1,9 @@
+services:
+    frankenphp-server:
+        image: frankenphp:latest
+        container_name: frankenphp
+        ports:
+            - '8080:8080'
+        volumes:
+            - '$PWD/ComponentPHP:/home/ComponentPHP'
+        command: sh -c 'cd /home/ComponentPHP && frankenphp run'
