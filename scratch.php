@@ -2,22 +2,18 @@
 
 declare(strict_types=1);
 
-class TestException extends \Exception
+class Tester
 {
-    public function __construct(
-        string $message,
-        mixed $value,
-        int $code = 0,
-        \Throwable|null $previous = null,
-    ) {
-        return parent::__construct($message, $code, $previous);
-    }
-
-    #[Override]
-    public function __toString(): string
+    public function sayhi()
     {
-        return "lol";
+        return 'hi';
     }
 }
 
-throw new \TestException('hi');
+
+$reflection = new \ReflectionClass(Tester::class);
+
+$x = new ($reflection->name)();
+print_r($x);
+$meth = 'sayhi';
+print_r($x->$meth());

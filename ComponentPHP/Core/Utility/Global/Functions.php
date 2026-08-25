@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Core\Debug\DebugMetrics;
+use Core\Utility\Config;
 
 if (!function_exists('dump'))
 {
@@ -18,4 +19,33 @@ if (!function_exists('dump'))
         }
         echo "\n\n</pre>";
     }
+}
+
+function normalisePath(string $path): string
+{
+    return str_replace('\\', '/', $path);
+}
+
+function relativeToAbsolutePath(string $relativePath): string
+{
+    return Config::ROOT_DIR . '/' . trim(normalisePath($relativePath), '/');
+}
+
+function fileToClassString(\SplFileInfo $file): ?string
+{
+    if ($file->getExtension() !== 'php')
+    {
+        throw new \Exception("Can only convert php files to class-strings, not '{$file->getRealPath()}'");
+    }
+
+    $filePath = substr(normalisePath($file->getRealPath()), 0, -4);
+    foreach (PSR4_NAMESPACES as $path => $namespace)
+    {
+        if (str_contains($filePath, $path))
+        {
+            return str_replace('/', '\\', str_replace($path, $namespace, $filePath));
+        }
+    }
+
+    return null;
 }

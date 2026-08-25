@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ComponentPHP;
+namespace Core;
 
 use Core\Debug\DebugMetrics;
 use Core\Routing\Models\Request;

@@ -4,49 +4,44 @@ declare(strict_types=1);
 
 namespace Core\Utility;
 
-use Core\Testing\AbstractTest;
-
-class Recurser
+class ClassFinder
 {
     public function __construct(
         public bool $recursive = true,
     ) {
     }
 
-    public function byExtension(string $path, string $class): array
+    /**
+     * @return list<\ReflectionClass>
+     */
+    public function byExtension(string $path, string $parentClassString): array
     {
+        $results = [];
         $iterator = $this->getIterator($path);
         /** @var \SplFileInfo $file */
         foreach ($iterator as $file)
         {
-            // print_r($file->getFilename() . "\n");
-            // TODO: This needs to become its own function in Functions or something (i.e. pathToClassName) or even pathToReflectionClass
-            $classPath = substr($file->getRealPath(), 0, -(strlen($file->getExtension()) + 1));
-            $namespace = str_replace(DIRECTORY_SEPARATOR, '\\', explode('ComponentPHP/', $classPath)[1]);
-            print_r("NS IS '{$namespace}'\n");
-            $class = new \ReflectionClass($namespace);
-            if ($class->getParentClass() === false)
+            $classString = fileToClassString($file);
+            $reflectionClass = new \ReflectionClass($classString);
+
+            $parentClass = $reflectionClass->getParentClass();
+            if ($parentClass === false)
             {
                 continue;
             }
 
-            $parentClass = $class->getParentClass();
-            $pc = $parentClass->name;
-            print_r("{$pc}\n");
-            if ($parentClass->name === AbstractTest::class)
+            if ($parentClass->name === $parentClassString)
             {
-                print_r('YAYA');
-                print_r($class->getParentClass());
+                $results[] = $reflectionClass;
             }
         }
 
-        return [];
+        return $results;
     }
 
     private function getIterator(string $path)
     {
-        $fullPath = Config::ROOT_DIR . '/' . trim(str_replace(DIRECTORY_SEPARATOR, '/', $path), '/');
-        print_r("path is '{$fullPath}'\n");
+        $fullPath = relativeToAbsolutePath($path);
 
         $directoryIterator = new \RecursiveDirectoryIterator(
             $fullPath,
