@@ -46,6 +46,8 @@ final class TestRunner
             $classInstance->$methodName();
         }
         catch (\Throwable $th)
-        {}
+        {
+            throw $th;
+        }
     }
 }

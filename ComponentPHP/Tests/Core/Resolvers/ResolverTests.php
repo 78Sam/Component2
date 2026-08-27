@@ -21,5 +21,7 @@ class ResolverTests extends AbstractTest
     public function stringTest(): void
     {
         print_r('hi');
+        // $this->assertEquals(2, "hello", "Failed");
+        assert(1 > 2, "Nope");
     }
 }
