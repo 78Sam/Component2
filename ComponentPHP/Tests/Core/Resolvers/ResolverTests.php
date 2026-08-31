@@ -12,16 +12,66 @@ class ResolverTests extends AbstractTest
 {
     private RequestResolver $requestResolver;
 
-    public function __construct()
-    {
+    #[\Override]
+    public function setup(): void {
         $this->requestResolver = new RequestResolver(throwErrors: false);
     }
 
-    #[Test]
+    #[\Override]
+    public function teardown(): void {}
+
+    #[Test('Test a required string')]
     public function stringTest(): void
     {
-        print_r('hi');
-        // $this->assertEquals(2, "hello", "Failed");
-        assert(1 > 2, "Nope");
+        $sampleData = ['key' => 'some data'];
+        $result = $this->requestResolver->resolve(
+            ['key' => 'string'],
+            $sampleData,
+        );
+        static::assertEquals($result, $sampleData, 'Failed to resolve a string');
+    }
+
+    #[Test('Test a required int')]
+    public function intTest(): void
+    {
+        $sampleData = ['key' => 12];
+        $result = $this->requestResolver->resolve(
+            ['key' => 'int'],
+            $sampleData,
+        );
+        static::assertEquals($result, $sampleData, 'Failed to resolve an int');
+    }
+
+    #[Test('Test a string int')]
+    public function stringIntTest(): void
+    {
+        $result = $this->requestResolver->resolve(
+            ['key' => 'int'],
+            ['key' => '-1'],
+        );
+        static::assertEquals($result, ['key' => -1], 'Failed to resolve a string int');
+    }
+
+    #[Test('Test undefined key removal')]
+    public function undefinedKeyRemovalTest(): void
+    {
+        $result = $this->requestResolver->resolve(
+            ['key' => 'int'],
+            [
+                'key' => '-1',
+                'undefinedKey' => 'remove me',
+            ],
+        );
+        static::assertEquals($result, ['key' => -1], 'Failed to resolve a string int');
+    }
+
+    #[Test('Test nullable keys')]
+    public function nullableKeyTest(): void
+    {
+        $result = $this->requestResolver->resolve(
+            ['key' => '?int'],
+            [],
+        );
+        static::assertEquals($result, ['key' => null], 'Failed to resolve a nullable key');
     }
 }

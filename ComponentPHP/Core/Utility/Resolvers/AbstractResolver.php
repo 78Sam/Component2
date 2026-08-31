@@ -26,10 +26,10 @@ abstract class AbstractResolver
     /**
      * @template T of array-key
      * @template V of mixed
-     * 
+     *
      * @param array<array-key, string> $expectedValues
      * @param array<T, V> $providedValues
-     * 
+     *
      * @throws \Exception if $this->throwErrors is true
      * @return array<T, V>
      */

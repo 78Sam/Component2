@@ -9,9 +9,15 @@ use Core\Testing\Attributes\Test;
 
 class hehe extends AbstractTest
 {
+    #[\Override]
+    public function setup(): void {}
+
+    #[\Override]
+    public function teardown(): void {}
+
     #[Test]
     public function sayhi()
     {
-        print_r("hi!");
+        
     }
 }

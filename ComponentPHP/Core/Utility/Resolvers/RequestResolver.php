@@ -21,10 +21,9 @@ class RequestResolver extends AbstractResolver
 
     private function resolveString(mixed $value): ?string
     {
-        $type = gettype($value);
-        if ($type !== 'string')
+        if (!is_string($value))
         {
-            $this->error(new ResolveException($value, $type, 'string'));
+            $this->error(new ResolveException($value, gettype($value), 'string'));
 
             return null;
         }
@@ -34,7 +33,6 @@ class RequestResolver extends AbstractResolver
 
     private function resolveInt(mixed $value): ?int
     {
-        $type = gettype($value);
         if (is_string($value))
         {
             $isNegative = false;
@@ -54,19 +52,10 @@ class RequestResolver extends AbstractResolver
             }
         }
 
-
-        // if ($type === 'string' && ctype_digit($value))
-        // {
-        //     $value = (int) $value;
-        //     $type = gettype($value);
-        // }
-
-        // if ($type !== 'integer')
-        // {
-        //     $this->error(new ResolveException($value, $type, 'integer'));
-
-        //     return null;
-        // }
+        if (!is_int($value))
+        {
+            $this->error(new ResolveException($value, gettype($value), 'int'));
+        }
 
         return $value;
     }
