@@ -20,7 +20,7 @@ final class TestRunner
         $this->testClasses = $this->classFinder->byExtension('Tests', AbstractTest::class);
     }
 
-    public function runAllTests(): void
+    public function runAllTests(): void // TODO: This method could do with being chunked up a bit I think
     {
         foreach ($this->testClasses as $testClass)
         {

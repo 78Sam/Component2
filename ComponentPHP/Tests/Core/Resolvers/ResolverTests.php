@@ -6,6 +6,7 @@ namespace Tests\Core\Resolvers;
 
 use Core\Testing\AbstractTest;
 use Core\Testing\Attributes\Test;
+use Core\Utility\Resolvers\Exceptions\RequiredKeyMissingException;
 use Core\Utility\Resolvers\RequestResolver;
 
 class ResolverTests extends AbstractTest
@@ -73,5 +74,21 @@ class ResolverTests extends AbstractTest
             [],
         );
         static::assertEquals($result, ['key' => null], 'Failed to resolve a nullable key');
+    }
+
+    #[Test('Test a missing required value')]
+    public function missingRequiredValueTest(): void
+    {
+        $result = $this->requestResolver->resolve(
+            ['key' => 'string'],
+            ['undefinedKey' => 'remove me'],
+        );
+        static::assertEquals($result, [], 'Failed to remove an undefined key');
+        
+        $errors = $this->requestResolver->getErrors();
+        static::assertEquals(count($errors), 1, 'Resolver should have exactly 1 error');
+
+        $error = $errors[0];
+        static::assertTrue($error instanceof RequiredKeyMissingException, 'Exception should be a required key missing exception');
     }
 }
