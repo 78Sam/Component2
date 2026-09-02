@@ -54,7 +54,7 @@ class Kernel
 
         dump($result);
 
-        $httpsScheme = in_array($request['HTTPS'] ?? '', ['', 'off'], true) ? 'HTTP' : 'HTTPS';
+        $httpsScheme = in_array($result['HTTPS'] ?? '', ['', 'off'], true) ? 'HTTP' : 'HTTPS';
         $request = new Request(
             host: $result['SERVER_NAME'],
             scheme: strtoupper($result['REQUEST_SCHEME'] ?? $httpsScheme),

@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace Core\Routing\Models;
 
-class Request
+final readonly class Request
 {
     public function __construct(
-        public readonly string $host,
-        public readonly string $scheme,
-        public readonly string $path,
-        public readonly int $port,
-        public readonly string $queryString,
-        public readonly string $method,
-        public readonly int $requestTime,
-        public readonly int $serverTime,
-        public readonly array $get = [],
-        public readonly array $post = [],
-        public readonly array $files = [],
-        public readonly array $cookies = [],
+        public string $host,
+        public string $scheme,
+        public string $path,
+        public int $port,
+        public string $queryString,
+        public string $method,
+        public int $requestTime,
+        public int $serverTime,
+        public array $get = [],
+        public array $post = [],
+        public array $files = [],
+        public array $cookies = [],
     ) {
     }
 }
