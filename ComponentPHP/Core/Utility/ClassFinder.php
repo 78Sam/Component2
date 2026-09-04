@@ -22,8 +22,12 @@ class ClassFinder
         foreach ($iterator as $file)
         {
             $classString = fileToClassString($file);
-            $reflectionClass = new \ReflectionClass($classString);
+            if ($classString === null)
+            {
+                continue;
+            }
 
+            $reflectionClass = new \ReflectionClass($classString);
             $parentClass = $reflectionClass->getParentClass();
             if ($parentClass === false)
             {
@@ -39,7 +43,7 @@ class ClassFinder
         return $results;
     }
 
-    private function getIterator(string $path)
+    private function getIterator(string $path): \RecursiveCallbackFilterIterator|\RecursiveIteratorIterator
     {
         $fullPath = relativeToAbsolutePath($path);
 
@@ -50,13 +54,13 @@ class ClassFinder
 
         $filterIterator = new \RecursiveCallbackFilterIterator(
             $directoryIterator,
-            function (\SplFileInfo $someval, string $key, \RecursiveDirectoryIterator $iterator) {
+            function (\SplFileInfo $file, string $_key, \RecursiveDirectoryIterator $iterator) {
                 if ($iterator->hasChildren() && $this->recursive)
                 {
                     return true;
                 }
 
-                return $someval->getExtension() === 'php';
+                return $file->getExtension() === 'php';
             },
         );
 

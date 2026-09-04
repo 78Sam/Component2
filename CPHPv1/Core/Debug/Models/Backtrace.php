@@ -11,6 +11,7 @@ readonly class Backtrace implements \Stringable
         public ?int $line,
     ) {}
 
+    #[\Override]
     public function __toString(): string
     {
         $file = $this->file ?? 'Unknown file';

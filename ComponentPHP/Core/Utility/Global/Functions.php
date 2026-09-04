@@ -31,6 +31,9 @@ function relativeToAbsolutePath(string $relativePath): string
     return Config::ROOT_DIR . '/' . trim(normalisePath($relativePath), '/');
 }
 
+/**
+ * @return class-string
+ */
 function fileToClassString(\SplFileInfo $file): ?string
 {
     if ($file->getExtension() !== 'php')
