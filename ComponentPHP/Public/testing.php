@@ -16,6 +16,7 @@ foreach ($classLoader->getPrefixesPsr4() as $namespace => $paths)
         $psr4Namespaces[normalisePath(realpath($path))] = trim($namespace, '\\');
     }
 }
+/** @var array<string, string> */
 define('PSR4_NAMESPACES', $psr4Namespaces);
 
 // $directoryIterator = new ClassFinder(recursive:true);

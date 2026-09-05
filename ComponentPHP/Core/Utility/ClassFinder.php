@@ -12,7 +12,11 @@ class ClassFinder
     }
 
     /**
-     * @return list<\ReflectionClass>
+     * @template T
+     *
+     * @param class-string<T> $parentClassString
+     *
+     * @return list<\ReflectionClass<T>>
      */
     public function byExtension(string $path, string $parentClassString): array
     {

@@ -55,6 +55,8 @@ class RequestResolver extends AbstractResolver
         if (!is_int($value))
         {
             $this->error(new ResolveException($value, gettype($value), 'int'));
+
+            return null;
         }
 
         return $value;

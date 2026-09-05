@@ -51,7 +51,7 @@ abstract class AbstractResolver
 
             if ($isRequired && !$isPresent)
             {
-                $this->error(new RequiredKeyMissingException($expectedKey));
+                $this->error(new RequiredKeyMissingException("{$expectedKey}"));
 
                 continue;
             }

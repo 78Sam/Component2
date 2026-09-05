@@ -14,6 +14,7 @@ foreach ($classLoader->getPrefixesPsr4() as $namespace => $paths)
         $psr4Namespaces[normalisePath(realpath($path))] = trim($namespace, '\\');
     }
 }
+/** @var array<string, string> */
 define('PSR4_NAMESPACES', $psr4Namespaces);
 
 $kernel = new Kernel(bin2hex(random_bytes(4)));

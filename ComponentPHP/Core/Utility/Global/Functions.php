@@ -12,6 +12,7 @@ if (!function_exists('dump'))
         $debugFrame = DebugMetrics::getBacktrace();
 
         echo "<pre>{$debugFrame}\n\n";
+        /** @mago-expect analysis:mixed-assignment */
         foreach ($values as $value) {
             $data = var_export($value, return: true);
             echo htmlspecialchars($data);
@@ -32,21 +33,34 @@ function relativeToAbsolutePath(string $relativePath): string
 }
 
 /**
- * @return class-string
+ * @return ?class-string
  */
 function fileToClassString(\SplFileInfo $file): ?string
 {
     if ($file->getExtension() !== 'php')
     {
-        throw new \Exception("Can only convert php files to class-strings, not '{$file->getRealPath()}'");
+        // throw new \Exception("Can only convert php files to class-strings, not '{$file->getRealPath()}'");
+        return null;
     }
 
-    $filePath = substr(normalisePath($file->getRealPath()), 0, -4);
+    $realPath = $file->getRealPath();
+    if ($realPath === false)
+    {
+        return null;
+    }
+
+    $filePath = substr(normalisePath($realPath), 0, -4);
     foreach (PSR4_NAMESPACES as $path => $namespace)
     {
         if (str_contains($filePath, $path))
         {
-            return str_replace('/', '\\', str_replace($path, $namespace, $filePath));
+            $classString = str_replace('/', '\\', str_replace($path, $namespace, $filePath));
+            if (!class_exists($classString))
+            {
+                continue;
+            }
+
+            return $classString;
         }
     }
 

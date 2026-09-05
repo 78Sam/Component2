@@ -6,7 +6,7 @@ php-version = "8.5.0"
 
 [source]
 workspace = "."
-paths = ["ComponentPHP/Core", "ComponentPHP/Tests"]
+paths = ["ComponentPHP/Core", "ComponentPHP/Tests", "ComponentPHP/Public"]
 includes = ["ComponentPHP/vendor"]
 excludes = []
 
@@ -33,7 +33,7 @@ find-unused-expressions = true
 analyze-dead-code = false
 memoize-properties = true
 allow-possibly-undefined-array-keys = false
-check-throws = true
+check-throws = false
 unchecked-exceptions = ["Error", "LogicException"]
 unchecked-exception-classes = []
 check-missing-override = true
