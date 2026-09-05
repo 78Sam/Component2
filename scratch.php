@@ -2,86 +2,154 @@
 
 declare(strict_types=1);
 
-class Requirement
+class ValidationException extends \Exception
+{}
+
+class MissingKeyException extends \Exception
+{}
+
+/**
+ * @template V
+ */
+abstract class Requirement
 {
-    /**
-     * @template T
-     * 
-     * @var T $value
-     */
+    /** @var V|MissingKeyException */
+    protected mixed $value;
+
     public function __construct(
         public readonly string|int $key,
-        public readonly string $type,
-        public readonly bool $nullable = false,
     ) {
     }
+
+    public function isMissing(): bool
+    {
+        return $this->value instanceof MissingKeyException;
+    }
+
+    public function markMissing(): self
+    {
+        $this->value = new MissingKeyException("Key '{$this->key}' is required but has not been provided");
+
+        return $this;
+    }
+
+    /**
+     * @throws MissingKeyException
+     *
+     * @return V
+     */
+    public function getValue(): mixed
+    {
+        if ($this->value instanceof MissingKeyException)
+        {
+            throw $this->value;
+        }
+
+        return $this->value;
+    }
+
+    /**
+     * @template T
+     *
+     * @param T $default
+     *
+     * @return V|T
+     */
+    public function getValueWithDefault(mixed $default = null): mixed
+    {
+        return $this->value instanceof MissingKeyException ? $default : $this->value;
+    }
+
+    abstract public function validate(mixed $value): void;
 }
 
-class Satisfaction implements ArrayAccess
+/**
+ * @extends Requirement<string|ValidationException>
+ */
+class StringRequirement extends Requirement
 {
-    public array $container = [];
-
     #[\Override]
-    public function offsetExists(mixed $offset): bool
+    public function validate(mixed $value): void
     {
-        throw new \Exception('Not implemented');
-    }
+        if (!is_string($value))
+        {
+            $this->value = new ValidationException('Not a string lol');
 
-    #[\Override]
-    public function offsetGet(mixed $offset): mixed
-    {
-        throw new \Exception('Not implemented');
-    }
+            return;
+        }
 
-    #[\Override]
-    public function offsetSet(mixed $offset, mixed $value): void
-    {
-        throw new \Exception('Not implemented');
-    }
-
-    #[\Override]
-    public function offsetUnset(mixed $offset): void
-    {
-        throw new \Exception('Not implemented');
+        $this->value = $value;
     }
 }
 
 /**
- * @param list<Requirement> $expected
+ * @extends Requirement<int|ValidationException>
  */
-function testme(array $expected, array $provided): WeakMap
+class IntOrStringIntRequirement extends Requirement
 {
-    $satisfaction = new WeakMap();
-    foreach ($expected as $requirement)
+    #[\Override]
+    public function validate(mixed $value): void
     {
-        if (!array_key_exists($requirement->key, $provided))
+        if (is_string($value))
         {
-            throw new \Exception('Required key missing');
+            $isNegative = false;
+            if (substr($value, 0, 1) === '-')
+            {
+                $isNegative = true;
+                $value = substr($value, 1);
+            }
+
+            if (ctype_digit($value))
+            {
+                $value = (int) $value;
+                if ($isNegative)
+                {
+                    $value = -$value;
+                }
+            }
         }
 
-        $value = $provided[$requirement->key];
-        if (gettype($value) !== $requirement->type)
+        if (!is_int($value))
         {
-            throw new \Exception('Not correct type');
+            $this->value = new ValidationException('bad');
+
+            return;
         }
 
-        $satisfaction[$requirement] = $value;
+        $this->value = $value;
     }
-
-    return $satisfaction;
 }
 
-// $requirement = new Requirement('key', 'string');
-// $p = testme(
-//     [
-//         new Requirement('key', 'string'),
-//     ],
-//     ['key' => 'hello'],
-// );
+function tester(array $requirements, array $provided): void
+{
+    foreach ($requirements as $requirement)
+    {
+        $key = $requirement->key;
+        if (!array_key_exists($key, $provided))
+        {
+            $requirement->markMissing();
 
-// print_r($p);
+            continue;
+        }
 
+        $requirement->validate($provided[$key]);
+    }
+}
 
-$p = new Satisfaction();
-$p[10] = 'hello';
-var_dump($p);
+$requirements = [
+    'SERVER_NAME' => new StringRequirement('SERVER_NAME'),
+    'REQUEST_SCHEME' => new StringRequirement('REQUEST_SCHEME'),
+    'HTTPS' => new StringRequirement('HTTPS'),
+    'REQUEST_URI' => new StringRequirement('REQUEST_URI'),
+    'SERVER_PORT' => new IntOrStringIntRequirement('SERVER_PORT'),
+    'QUERY_STRING' => new IntOrStringIntRequirement('QUERY_STRING'),
+    'REQUEST_METHOD' => new IntOrStringIntRequirement('REQUEST_METHOD'),
+    'REQUEST_TIME' => new IntOrStringIntRequirement('REQUEST_TIME'),
+];
+
+tester(
+    $requirements,
+    $_SERVER,
+);
+
+$x = $requirements['SERVER_NAME']->getValue();

@@ -7,18 +7,18 @@ namespace Core;
 use Core\Debug\DebugMetrics;
 use Core\Routing\Models\Request;
 use Core\Routing\RouterInterface;
-use Core\Utility\Resolvers\RequestResolver;
+use Core\Utility\Requirements\Services\RequirementService;
+use Core\Utility\Requirements\Specifics\IntOrStringIntRequirement;
+use Core\Utility\Requirements\Specifics\StringRequirement;
 
 class Kernel
 {
     public readonly RouterInterface $router;
-    public readonly RequestResolver $requestResolver;
 
     public function __construct(
         public readonly string $workerId,
     ) {
         // $this->router = 
-        $this->requestResolver = new RequestResolver();
     }
 
     public function boot(): void
@@ -38,31 +38,30 @@ class Kernel
 
         frankenphp_log('Handling request', context: ['workerId' => $this->workerId]);
 
-        $result = $this->requestResolver->resolve(
-            [
-                'SERVER_NAME' => 'string',
-                'REQUEST_SCHEME' => '?string',
-                'HTTPS' => '?string',
-                'REQUEST_URI' => 'string',
-                'SERVER_PORT' => 'int',
-                'QUERY_STRING' => 'string',
-                'REQUEST_METHOD' => 'string',
-                'REQUEST_TIME' => 'int',
-            ],
-            $server,
-        );
+        $requirements = [
+            'SERVER_NAME' => new StringRequirement('SERVER_NAME'),
+            'REQUEST_SCHEME' => new StringRequirement('REQUEST_SCHEME'),
+            'HTTPS' => new StringRequirement('HTTPS'),
+            'REQUEST_URI' => new StringRequirement('REQUEST_URI'),
+            'SERVER_PORT' => new IntOrStringIntRequirement('SERVER_PORT'),
+            'QUERY_STRING' => new StringRequirement('QUERY_STRING'),
+            'REQUEST_METHOD' => new StringRequirement('REQUEST_METHOD'),
+            'REQUEST_TIME' => new IntOrStringIntRequirement('REQUEST_TIME'),
+        ];
 
-        dump($result);
+        RequirementService::validate($requirements, $server);
 
-        $httpsScheme = in_array($result['HTTPS'] ?? '', ['', 'off'], true) ? 'HTTP' : 'HTTPS';
+        dump($requirements);
+
+        $httpsScheme = in_array($requirements['HTTPS']->getValueWithDefault(''), ['', 'off'], true) ? 'HTTP' : 'HTTPS';
         $request = new Request(
-            host: $result['SERVER_NAME'],
-            scheme: strtoupper($result['REQUEST_SCHEME'] ?? $httpsScheme),
-            path: parse_url($result['REQUEST_URI'], PHP_URL_PATH),
-            port: $result['SERVER_PORT'],
-            queryString: $result['QUERY_STRING'],
-            method: $result['REQUEST_METHOD'],
-            requestTime: $result['REQUEST_TIME'],
+            host: $requirements['SERVER_NAME']->getValue(),
+            scheme: strtoupper($requirements['REQUEST_SCHEME']->getValueWithDefault($httpsScheme)),
+            path: parse_url($requirements['REQUEST_URI']->getValue(), PHP_URL_PATH),
+            port: $requirements['SERVER_PORT']->getValue(),
+            queryString: $requirements['QUERY_STRING']->getValue(),
+            method: $requirements['REQUEST_METHOD']->getValue(),
+            requestTime: $requirements['REQUEST_TIME']->getValue(),
             serverTime: time(),
             get: $get,
             post: $post,
