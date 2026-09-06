@@ -6,19 +6,19 @@ namespace Core;
 
 use Core\Debug\DebugMetrics;
 use Core\Routing\Models\Request;
-use Core\Routing\RouterInterface;
-use Core\Utility\Requirements\Services\RequirementService;
-use Core\Utility\Requirements\Specifics\IntOrStringIntRequirement;
-use Core\Utility\Requirements\Specifics\StringRequirement;
+use Core\Routing\Router;
+use Core\Utility\Validators\Services\ValidatorService;
+use Core\Utility\Validators\Types\IntOrStringIntValidator;
+use Core\Utility\Validators\Types\StringValidator;
 
 class Kernel
 {
-    public readonly RouterInterface $router;
+    public readonly Router $router;
 
     public function __construct(
         public readonly string $workerId,
     ) {
-        // $this->router = 
+        $this->router = new Router();
     }
 
     public function boot(): void
@@ -38,37 +38,7 @@ class Kernel
 
         frankenphp_log('Handling request', context: ['workerId' => $this->workerId]);
 
-        $requirements = [
-            'SERVER_NAME' => new StringRequirement('SERVER_NAME'),
-            'REQUEST_SCHEME' => new StringRequirement('REQUEST_SCHEME'),
-            'HTTPS' => new StringRequirement('HTTPS'),
-            'REQUEST_URI' => new StringRequirement('REQUEST_URI'),
-            'SERVER_PORT' => new IntOrStringIntRequirement('SERVER_PORT'),
-            'QUERY_STRING' => new StringRequirement('QUERY_STRING'),
-            'REQUEST_METHOD' => new StringRequirement('REQUEST_METHOD'),
-            'REQUEST_TIME' => new IntOrStringIntRequirement('REQUEST_TIME'),
-        ];
-
-        RequirementService::validate($requirements, $server);
-
-        dump($requirements);
-
-        $httpsScheme = in_array($requirements['HTTPS']->getValueWithDefault(''), ['', 'off'], true) ? 'HTTP' : 'HTTPS';
-        $request = new Request(
-            host: $requirements['SERVER_NAME']->getValue(),
-            scheme: strtoupper($requirements['REQUEST_SCHEME']->getValueWithDefault($httpsScheme)),
-            path: parse_url($requirements['REQUEST_URI']->getValue(), PHP_URL_PATH),
-            port: $requirements['SERVER_PORT']->getValue(),
-            queryString: $requirements['QUERY_STRING']->getValue(),
-            method: $requirements['REQUEST_METHOD']->getValue(),
-            requestTime: $requirements['REQUEST_TIME']->getValue(),
-            serverTime: time(),
-            get: $get,
-            post: $post,
-            files: $files,
-            cookies: $cookies,
-        );
-
+        $request = $this->router->buildRequest($server, $get, $post, $files, $cookies);
         dump($request);
 
         $endOfHandleRequestPerformanceSlice = DebugMetrics::getPerformanceSlice('End of handleRequest()');

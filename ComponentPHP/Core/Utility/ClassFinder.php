@@ -14,6 +14,7 @@ class ClassFinder
     /**
      * @template T
      *
+     * @param string $path Path relative to the project directory
      * @param class-string<T> $parentClassString
      *
      * @return list<\ReflectionClass<T>>
@@ -21,7 +22,13 @@ class ClassFinder
     public function byExtension(string $path, string $parentClassString): array
     {
         $results = [];
-        $iterator = $this->getIterator($path);
+        $fullPath = relativeToAbsolutePath($path);
+        if (!file_exists($fullPath) || !is_dir($fullPath))
+        {
+            return [];
+        }
+
+        $iterator = $this->getIterator($fullPath);
         /** @var \SplFileInfo $file */
         foreach ($iterator as $file)
         {
@@ -49,16 +56,14 @@ class ClassFinder
 
     private function getIterator(string $path): \RecursiveCallbackFilterIterator|\RecursiveIteratorIterator
     {
-        $fullPath = relativeToAbsolutePath($path);
-
         $directoryIterator = new \RecursiveDirectoryIterator(
-            $fullPath,
+            $path,
             \RecursiveDirectoryIterator::SKIP_DOTS,
         );
 
         $filterIterator = new \RecursiveCallbackFilterIterator(
             $directoryIterator,
-            function (\SplFileInfo $file, string $_key, \RecursiveDirectoryIterator $iterator) {
+            function(\SplFileInfo $file, string $_key, \RecursiveDirectoryIterator $iterator) {
                 if ($iterator->hasChildren() && $this->recursive)
                 {
                     return true;

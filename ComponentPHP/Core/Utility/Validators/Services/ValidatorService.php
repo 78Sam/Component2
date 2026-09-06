@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Core\Utility\Requirements\Services;
+namespace Core\Utility\Validators\Services;
 
-use Core\Utility\Requirements\AbstractRequirement;
+use Core\Utility\Validators\Types\AbstractValidator;
 
-class RequirementService
+class ValidatorService
 {
     /**
-     * @param list<AbstractRequirement> $requirements
+     * @param array<array-key, AbstractValidator> $requirements
      * @param array<array-key, mixed> $provided
      */
     public static function validate(array $requirements, array $provided): void

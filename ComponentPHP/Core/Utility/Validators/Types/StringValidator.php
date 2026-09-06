@@ -2,15 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Core\Utility\Requirements\Specifics;
+namespace Core\Utility\Validators\Types;
 
-use Core\Utility\Requirements\AbstractRequirement;
-use Core\Utility\Requirements\Exceptions\ValidationException;
+use Core\Utility\Validators\Exceptions\ValidationException;
 
 /**
- * @extends AbstractRequirement<string|ValidationException>
+ * @extends AbstractValidator<string|ValidationException>
  */
-class StringRequirement extends AbstractRequirement
+class StringValidator extends AbstractValidator
 {
     #[\Override]
     public function validate(mixed $value): void

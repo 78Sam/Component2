@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Core\Utility\Requirements;
+namespace Core\Utility\Validators\Types;
 
-use Core\Utility\Requirements\Exceptions\MissingKeyException;
+use Core\Utility\Validators\Exceptions\MissingKeyException;
 
 /**
  * @template V
  */
-abstract class AbstractRequirement
+abstract class AbstractValidator
 {
     /** @var V|MissingKeyException */
     protected mixed $value;
