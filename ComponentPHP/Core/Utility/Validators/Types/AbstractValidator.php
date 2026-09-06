@@ -16,8 +16,7 @@ abstract class AbstractValidator
 
     public function __construct(
         public readonly string|int $key,
-    ) {
-    }
+    ) {}
 
     public function isMissing(): bool
     {
@@ -38,8 +37,7 @@ abstract class AbstractValidator
      */
     public function getValue(): mixed
     {
-        if ($this->value instanceof MissingKeyException)
-        {
+        if ($this->value instanceof MissingKeyException) {
             throw $this->value;
         }
 

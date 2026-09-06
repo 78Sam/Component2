@@ -9,12 +9,8 @@ class RequiredKeyMissingException extends \Exception
     public function __construct(
         public readonly string $key,
         int $code = 0,
-        \Throwable|null $previous = null,
+        ?\Throwable $previous = null,
     ) {
-        parent::__construct(
-            "The required key '{$this->key}' was not provided",
-            $code,
-            $previous
-        );
+        parent::__construct("The required key '{$this->key}' was not provided", $code, $previous);
     }
 }

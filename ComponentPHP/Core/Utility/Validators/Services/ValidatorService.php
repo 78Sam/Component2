@@ -14,11 +14,9 @@ class ValidatorService
      */
     public static function validate(array $requirements, array $provided): void
     {
-        foreach ($requirements as $requirement)
-        {
+        foreach ($requirements as $requirement) {
             $key = $requirement->key;
-            if (!array_key_exists($key, $provided))
-            {
+            if (!array_key_exists($key, $provided)) {
                 $requirement->markMissing();
 
                 continue;

@@ -22,8 +22,7 @@ final class TestRunner
 
     public function runAllTests(): void // TODO: This method could do with being chunked up a bit I think
     {
-        foreach ($this->testClasses as $testClass)
-        {
+        foreach ($this->testClasses as $testClass) {
             $classString = $testClass->name;
 
             /** @var AbstractTest $class */
@@ -32,16 +31,13 @@ final class TestRunner
 
             $testResults = ['passed' => 0, 'total' => 0];
             print_r("Running tests for class {$classString}\n");
-            foreach ($testClass->getMethods(\ReflectionMethod::IS_PUBLIC) as $method)
-            {
+            foreach ($testClass->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
                 $testAttributes = $method->getAttributes(Test::class);
-                if (count($testAttributes) === 0)
-                {
+                if (count($testAttributes) === 0) {
                     continue;
                 }
 
-                if (count($testAttributes) > 1)
-                {
+                if (count($testAttributes) > 1) {
                     throw new \LogicException('Each test method should only have one test attribute');
                 }
 
@@ -54,12 +50,9 @@ final class TestRunner
                 $error = $this->runTest($class, $methodName);
                 $class->postTest($testAttribute);
 
-                if ($error !== null)
-                {
+                if ($error !== null) {
                     $testMessage .= " ({$error->getMessage()})";
-                }
-                else
-                {
+                } else {
                     $testResults['passed']++;
                 }
 
@@ -73,14 +66,11 @@ final class TestRunner
 
     private function runTest(object $class, string $method): ?\Throwable
     {
-        try
-        {
+        try {
             $class->$method();
 
             return null;
-        }
-        catch (\Throwable $th)
-        {
+        } catch (\Throwable $th) {
             return $th;
         }
     }

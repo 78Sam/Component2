@@ -19,6 +19,5 @@ final readonly class Request
         public array $post = [],
         public array $files = [],
         public array $cookies = [],
-    ) {
-    }
+    ) {}
 }

@@ -11,12 +11,12 @@ class ResolveException extends \Exception
         public readonly string $providedType,
         public readonly string $expectedType,
         int $code = 0,
-        \Throwable|null $previous = null,
+        ?\Throwable $previous = null,
     ) {
         parent::__construct(
             "Value was expected to be of type '{$this->expectedType}' but received '{$this->providedType}'",
             $code,
-            $previous
+            $previous,
         );
     }
 }

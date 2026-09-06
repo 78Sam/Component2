@@ -48,8 +48,12 @@ final class Console
     public const string EM_BOLD = '1';
     public const string EM_UNDERLINE = '4';
 
-    public static function message(string $message, string $foreground = '', string $background = '', string $em = ''): string
-    {
+    public static function message(
+        string $message,
+        string $foreground = '',
+        string $background = '',
+        string $em = '',
+    ): string {
         $codes = [$em, $foreground, $background];
         $codes = array_filter($codes, fn(string $code): bool => $code !== '');
         $code = implode(';', $codes);

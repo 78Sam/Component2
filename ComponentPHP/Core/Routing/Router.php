@@ -26,13 +26,7 @@ final class Router
         $this->createSiteMap();
     }
 
-    public function buildRequest(
-        array $server,
-        array $get,
-        array $post,
-        array $files,
-        array $cookies,
-    ): Request
+    public function buildRequest(array $server, array $get, array $post, array $files, array $cookies): Request
     {
         $requirements = [
             'SERVER_NAME' => new StringValidator('SERVER_NAME'),
@@ -68,33 +62,27 @@ final class Router
     public function createSiteMap(): void
     {
         $controllers = $this->classFinder->byExtension('App/Controllers', AbstractController::class);
-        foreach ($controllers as $controller)
-        {
-            foreach ($controller->getMethods(\ReflectionMethod::IS_PUBLIC) as $method)
-            {
+        foreach ($controllers as $controller) {
+            foreach ($controller->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
                 $routeAttributes = $method->getAttributes(Route::class);
                 $numRouteAttributes = count($routeAttributes);
-                if ($numRouteAttributes === 0)
-                {
+                if ($numRouteAttributes === 0) {
                     continue;
                 }
 
-                if ($numRouteAttributes > 1)
-                {
-                    throw new \LogicException("Controller methods should only have 1 route attribute, '{$method->name}' has {$numRouteAttributes}");
+                if ($numRouteAttributes > 1) {
+                    throw new \LogicException(
+                        "Controller methods should only have 1 route attribute, '{$method->name}' has {$numRouteAttributes}",
+                    );
                 }
 
                 $routeAttribute = $routeAttributes[0]->newInstance();
                 $route = $routeAttribute->route;
-                if (array_key_exists($route, $this->siteMapEntries))
-                {
+                if (array_key_exists($route, $this->siteMapEntries)) {
                     throw new \LogicException("Route already registered '{$route}'");
                 }
 
-                $this->siteMapEntries[$route] = new SiteMapEntry(
-                    $routeAttribute,
-                    $method,
-                );
+                $this->siteMapEntries[$route] = new SiteMapEntry($routeAttribute, $method);
             }
         }
     }

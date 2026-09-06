@@ -14,8 +14,7 @@ class StringValidator extends AbstractValidator
     #[\Override]
     public function validate(mixed $value): void
     {
-        if (!is_string($value))
-        {
+        if (!is_string($value)) {
             $this->value = new ValidationException('Value must be a string');
 
             return;

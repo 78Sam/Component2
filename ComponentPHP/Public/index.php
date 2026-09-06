@@ -7,10 +7,8 @@ use Core\Kernel;
 /** @var \Composer\Autoload\ClassLoader $classLoader */
 $classLoader = require_once dirname(__DIR__) . '/vendor/autoload.php';
 $psr4Namespaces = [];
-foreach ($classLoader->getPrefixesPsr4() as $namespace => $paths)
-{
-    foreach ($paths as $path)
-    {
+foreach ($classLoader->getPrefixesPsr4() as $namespace => $paths) {
+    foreach ($paths as $path) {
         $psr4Namespaces[normalisePath(realpath($path))] = trim($namespace, '\\');
     }
 }
@@ -20,27 +18,21 @@ define('PSR4_NAMESPACES', $psr4Namespaces);
 $kernel = new Kernel(bin2hex(random_bytes(4)));
 $kernel->boot();
 
-$handler = static function() use ($kernel)
-{
-    try
-    {
+$handler = static function () use ($kernel) {
+    try {
         $kernel->handleRequest($_SERVER, $_GET, $_POST, $_FILES, $_COOKIE);
-    }
-    catch (\Throwable $exception)
-    {
+    } catch (\Throwable $exception) {
         dump($exception);
     }
 };
 
 $totalRequests = 0;
-while (true)
-{
+while (true) {
     $keepRunning = frankenphp_handle_request($handler);
 
     gc_collect_cycles();
 
-    if (!$keepRunning)
-    {
+    if (!$keepRunning) {
         break;
     }
 }

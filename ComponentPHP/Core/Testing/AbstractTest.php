@@ -21,8 +21,7 @@ abstract class AbstractTest
      */
     public static function assertEquals(mixed $value1, mixed $value2, string $message): void
     {
-        if ($value1 !== $value2)
-        {
+        if ($value1 !== $value2) {
             throw new \AssertionError($message);
         }
     }
@@ -32,8 +31,7 @@ abstract class AbstractTest
      */
     public static function assertNotEquals(mixed $value1, mixed $value2, string $message): void
     {
-        if ($value1 === $value2)
-        {
+        if ($value1 === $value2) {
             throw new \AssertionError($message);
         }
     }
@@ -43,8 +41,7 @@ abstract class AbstractTest
      */
     public static function assertTrue(bool $result, string $message): void
     {
-        if (!$result)
-        {
+        if (!$result) {
             throw new \AssertionError($message);
         }
     }

@@ -9,6 +9,5 @@ final readonly class Test
 {
     public function __construct(
         public string $description = '',
-    ) {
-    }
+    ) {}
 }

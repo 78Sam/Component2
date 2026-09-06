@@ -26,13 +26,7 @@ class Kernel
         frankenphp_log('Booting kernel', context: ['workerId' => $this->workerId]);
     }
 
-    public function handleRequest(
-        array $server,
-        array $get,
-        array $post,
-        array $files,
-        array $cookies,
-    ): void
+    public function handleRequest(array $server, array $get, array $post, array $files, array $cookies): void
     {
         $startOfHandleRequestPerformanceSlice = DebugMetrics::getPerformanceSlice('Start of handleRequest()');
 
@@ -42,7 +36,7 @@ class Kernel
         dump($request);
 
         $endOfHandleRequestPerformanceSlice = DebugMetrics::getPerformanceSlice('End of handleRequest()');
-        dump("Request took:", $endOfHandleRequestPerformanceSlice->since($startOfHandleRequestPerformanceSlice, 9));
+        dump('Request took:', $endOfHandleRequestPerformanceSlice->since($startOfHandleRequestPerformanceSlice, 9));
 
         echo 'Yay';
     }

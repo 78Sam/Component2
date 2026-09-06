@@ -15,8 +15,7 @@ abstract class AbstractResolver
     public function __construct(
         public readonly bool $removeUndefined = true,
         public readonly bool $throwErrors = true,
-    ) {
-    }
+    ) {}
 
     /**
      * @return array<string, callable(mixed $value): mixed>
@@ -37,35 +36,34 @@ abstract class AbstractResolver
     {
         $this->errors = [];
 
-        if ($this->removeUndefined)
-        {
-            $providedValues = array_filter($providedValues, fn(string|int $key): bool => array_key_exists($key, $expectedValues), 2);
+        if ($this->removeUndefined) {
+            $providedValues = array_filter(
+                $providedValues,
+                fn(string|int $key): bool => array_key_exists($key, $expectedValues),
+                2,
+            );
         }
 
-        foreach ($expectedValues as $expectedKey => $expectedType)
-        {
+        foreach ($expectedValues as $expectedKey => $expectedType) {
             $resolver = ltrim($expectedType, '?');
             $isRequired = $resolver === $expectedType;
 
             $isPresent = array_key_exists($expectedKey, $providedValues);
 
-            if ($isRequired && !$isPresent)
-            {
+            if ($isRequired && !$isPresent) {
                 $this->error(new RequiredKeyMissingException("{$expectedKey}"));
 
                 continue;
             }
 
-            if (!$isRequired && !$isPresent)
-            {
+            if (!$isRequired && !$isPresent) {
                 $providedValues[$expectedKey] = null;
 
                 continue;
             }
 
             $value = $providedValues[$expectedKey];
-            if ($value === null && !$isRequired)
-            {
+            if ($value === null && !$isRequired) {
                 continue;
             }
 
@@ -85,8 +83,7 @@ abstract class AbstractResolver
 
     protected function error(\Exception $exception): void
     {
-        if ($this->throwErrors)
-        {
+        if ($this->throwErrors) {
             throw $exception;
         }
 
@@ -99,8 +96,7 @@ abstract class AbstractResolver
     private function getResolver(string $type): callable
     {
         $resolver = $this->getResolvers()[$type] ?? null;
-        if ($resolver === null)
-        {
+        if ($resolver === null) {
             throw new UndefinedResolverException($type);
         }
 

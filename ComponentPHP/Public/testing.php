@@ -12,10 +12,8 @@ use Core\Utility\Validators\Types\StringValidator;
 /** @var \Composer\Autoload\ClassLoader $classLoader */
 $classLoader = require_once dirname(__DIR__) . '/vendor/autoload.php';
 $psr4Namespaces = [];
-foreach ($classLoader->getPrefixesPsr4() as $namespace => $paths)
-{
-    foreach ($paths as $path)
-    {
+foreach ($classLoader->getPrefixesPsr4() as $namespace => $paths) {
+    foreach ($paths as $path) {
         $psr4Namespaces[normalisePath(realpath($path))] = trim($namespace, '\\');
     }
 }

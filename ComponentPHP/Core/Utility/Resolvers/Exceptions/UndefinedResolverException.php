@@ -9,12 +9,8 @@ class UndefinedResolverException extends \Exception
     public function __construct(
         public readonly string $type,
         int $code = 0,
-        \Throwable|null $previous = null,
+        ?\Throwable $previous = null,
     ) {
-        parent::__construct(
-            "The resolver for type '{$this->type}' is not defined",
-            $code,
-            $previous
-        );
+        parent::__construct("The resolver for type '{$this->type}' is not defined", $code, $previous);
     }
 }

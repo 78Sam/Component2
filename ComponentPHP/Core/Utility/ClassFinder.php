@@ -8,8 +8,7 @@ class ClassFinder
 {
     public function __construct(
         public bool $recursive = true,
-    ) {
-    }
+    ) {}
 
     /**
      * @template T
@@ -23,30 +22,25 @@ class ClassFinder
     {
         $results = [];
         $fullPath = relativeToAbsolutePath($path);
-        if (!file_exists($fullPath) || !is_dir($fullPath))
-        {
+        if (!file_exists($fullPath) || !is_dir($fullPath)) {
             return [];
         }
 
         $iterator = $this->getIterator($fullPath);
         /** @var \SplFileInfo $file */
-        foreach ($iterator as $file)
-        {
+        foreach ($iterator as $file) {
             $classString = fileToClassString($file);
-            if ($classString === null)
-            {
+            if ($classString === null) {
                 continue;
             }
 
             $reflectionClass = new \ReflectionClass($classString);
             $parentClass = $reflectionClass->getParentClass();
-            if ($parentClass === false)
-            {
+            if ($parentClass === false) {
                 continue;
             }
 
-            if ($parentClass->name === $parentClassString)
-            {
+            if ($parentClass->name === $parentClassString) {
                 $results[] = $reflectionClass;
             }
         }
@@ -56,25 +50,21 @@ class ClassFinder
 
     private function getIterator(string $path): \RecursiveCallbackFilterIterator|\RecursiveIteratorIterator
     {
-        $directoryIterator = new \RecursiveDirectoryIterator(
-            $path,
-            \RecursiveDirectoryIterator::SKIP_DOTS,
-        );
+        $directoryIterator = new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS);
 
-        $filterIterator = new \RecursiveCallbackFilterIterator(
-            $directoryIterator,
-            function(\SplFileInfo $file, string $_key, \RecursiveDirectoryIterator $iterator) {
-                if ($iterator->hasChildren() && $this->recursive)
-                {
-                    return true;
-                }
+        $filterIterator = new \RecursiveCallbackFilterIterator($directoryIterator, function (
+            \SplFileInfo $file,
+            string $_key,
+            \RecursiveDirectoryIterator $iterator,
+        ) {
+            if ($iterator->hasChildren() && $this->recursive) {
+                return true;
+            }
 
-                return $file->getExtension() === 'php';
-            },
-        );
+            return $file->getExtension() === 'php';
+        });
 
-        if (!$this->recursive)
-        {
+        if (!$this->recursive) {
             return $filterIterator;
         }
 
