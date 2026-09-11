@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Core\Components\AbstractTemplate;
 use Core\Routing\Router;
 use Core\Testing\AbstractTest;
 use Core\Testing\TestRunner;
@@ -23,6 +24,13 @@ define('PSR4_NAMESPACES', $psr4Namespaces);
 // $tester = new TestRunner();
 // $tester->runAllTests();
 
-$router = new Router();
-$router->createSiteMap();
-print_r($router->siteMapEntries);
+// $router = new Router();
+// $router->createSiteMap();
+// print_r($router->siteMapEntries);
+
+class TestTemplate extends AbstractTemplate
+{}
+
+$x = new TestTemplate();
+
+print_r($x->loadFile('test.html')) . "\n";

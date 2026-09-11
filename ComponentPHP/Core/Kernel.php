@@ -31,13 +31,12 @@ class Kernel
         frankenphp_log('Handling request', context: ['workerId' => $this->workerId]);
 
         $request = $this->router->buildRequest($server, $get, $post, $files, $cookies);
-        dump($request);
-
         $response = $this->router->handleRequest($request);
 
         $endOfHandleRequestPerformanceSlice = DebugMetrics::getPerformanceSlice('End of handleRequest()');
-        dump('Request took:', $endOfHandleRequestPerformanceSlice->since($startOfHandleRequestPerformanceSlice, 9));
+        // dump('Request took:', $endOfHandleRequestPerformanceSlice->since($startOfHandleRequestPerformanceSlice, 9));
 
+        http_response_code($response->responseCode);
         echo $response->content;
     }
 

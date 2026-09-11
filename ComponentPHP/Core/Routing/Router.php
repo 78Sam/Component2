@@ -70,7 +70,7 @@ final class Router
     public function handleRequest(Request $request): Response
     {
         if (!array_key_exists($request->path, $this->siteMapEntries)) {
-            return new Response('<h1>404</h1>');
+            return new Response('<h1>404</h1>', 404);
         }
 
         $siteMapEntry = $this->siteMapEntries[$request->path];

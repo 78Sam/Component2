@@ -23,12 +23,17 @@ if (!function_exists('dump')) {
 
 function normalisePath(string $path): string
 {
-    return str_replace('\\', '/', $path);
+    $path = str_replace('\\\\', '/', $path);
+    $path = str_replace('\\', '/', $path);
+    $path = str_replace('//', '/', $path);
+    $path = '/' . trim($path, '/');
+
+    return $path;
 }
 
 function relativeToAbsolutePath(string $relativePath): string
 {
-    return Config::ROOT_DIR . '/' . trim(normalisePath($relativePath), '/');
+    return Config::ROOT_DIR . normalisePath($relativePath);
 }
 
 /**
