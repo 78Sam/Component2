@@ -19,8 +19,7 @@ final class Route
         public readonly string $name,
         public readonly array $HTTPVerbs = [],
     ) {
-        foreach ($routes as $route)
-        {
+        foreach ($routes as $route) {
             $this->routes[] = '/' . trim($route, '/');
         }
     }

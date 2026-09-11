@@ -26,8 +26,7 @@ $handler = static function () use ($kernel) {
     }
 };
 
-if (($_SERVER['SERVER_SOFTWARE'] ?? null) === 'FrankenPHP')
-{
+if (($_SERVER['SERVER_SOFTWARE'] ?? null) === 'FrankenPHP') {
     $totalRequests = 0;
     while (true) {
         $keepRunning = frankenphp_handle_request($handler);
@@ -38,9 +37,7 @@ if (($_SERVER['SERVER_SOFTWARE'] ?? null) === 'FrankenPHP')
             break;
         }
     }
-}
-else
-{
+} else {
     $handler();
 }
 

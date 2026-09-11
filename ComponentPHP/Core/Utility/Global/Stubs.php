@@ -8,7 +8,8 @@ if (!function_exists('frankenphp_log')) {
     define('FRANKENPHP_LOG_LEVEL_WARN', 4);
     define('FRANKENPHP_LOG_LEVEL_ERROR', 8);
 
-    function frankenphp_log(string $message, int $level = FRANKENPHP_LOG_LEVEL_INFO, array $context = []): void {
+    function frankenphp_log(string $message, int $level = FRANKENPHP_LOG_LEVEL_INFO, array $context = []): void
+    {
         error_log($message);
     }
 }

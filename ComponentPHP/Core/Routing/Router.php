@@ -42,11 +42,9 @@ final class Router
         ];
 
         ValidatorService::validate($requirements, $server);
-        foreach ($requirements as $requirement)
-        {
+        foreach ($requirements as $requirement) {
             $value = $requirement->getValueWithDefault();
-            if ($value instanceof ValidationException)
-            {
+            if ($value instanceof ValidationException) {
                 throw $value;
             }
         }
@@ -78,11 +76,10 @@ final class Router
         $siteMapEntry = $this->siteMapEntries[$request->path];
 
         /** @var AbstractController $controller */
-        $controller = new ($siteMapEntry->method->class)();
+        $controller = new $siteMapEntry->method->class();
 
         $response = $siteMapEntry->method->invoke($controller, $request);
-        if (!($response instanceof Response))
-        {
+        if (!$response instanceof Response) {
             throw new \LogicException("Controller method '{$siteMapEntry->method->name}' must return a Response");
         }
 
@@ -108,8 +105,7 @@ final class Router
 
                 $routeAttribute = $routeAttributes[0]->newInstance();
                 $routes = $routeAttribute->routes;
-                foreach ($routes as $route)
-                {
+                foreach ($routes as $route) {
                     if (array_key_exists($route, $this->siteMapEntries)) {
                         throw new \LogicException("Route already registered '{$route}'");
                     }
