@@ -5,16 +5,23 @@ declare(strict_types=1);
 namespace Core\Routing\Attributes;
 
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
-readonly class Route
+final class Route
 {
-    public string $route;
+    /** @var list<string> */
+    public array $routes = [];
 
-    /** @param list<string> $HTTPVerbs */
+    /**
+     * @param list<string> $routes
+     * @param list<string> $HTTPVerbs
+     */
     public function __construct(
-        string $route,
-        public string $name,
-        public array $HTTPVerbs = [],
+        array $routes,
+        public readonly string $name,
+        public readonly array $HTTPVerbs = [],
     ) {
-        $this->route = '/' . trim($route, '/');
+        foreach ($routes as $route)
+        {
+            $this->routes[] = '/' . trim($route, '/');
+        }
     }
 }

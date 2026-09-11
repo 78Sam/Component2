@@ -5,19 +5,17 @@ declare(strict_types=1);
 namespace Core;
 
 use Core\Debug\DebugMetrics;
-use Core\Routing\Models\Request;
 use Core\Routing\Router;
-use Core\Utility\Validators\Services\ValidatorService;
-use Core\Utility\Validators\Types\IntOrStringIntValidator;
-use Core\Utility\Validators\Types\StringValidator;
 
 class Kernel
 {
     public readonly Router $router;
+    public readonly bool $isFranken;
 
     public function __construct(
         public readonly string $workerId,
     ) {
+        $this->isFranken = ($_SERVER['SERVER_SOFTWARE'] ?? null) === 'FrankenPHP';
         $this->router = new Router();
     }
 
@@ -35,10 +33,12 @@ class Kernel
         $request = $this->router->buildRequest($server, $get, $post, $files, $cookies);
         dump($request);
 
+        $response = $this->router->handleRequest($request);
+
         $endOfHandleRequestPerformanceSlice = DebugMetrics::getPerformanceSlice('End of handleRequest()');
         dump('Request took:', $endOfHandleRequestPerformanceSlice->since($startOfHandleRequestPerformanceSlice, 9));
 
-        echo 'Yay';
+        echo $response->content;
     }
 
     public function shutdown(): void

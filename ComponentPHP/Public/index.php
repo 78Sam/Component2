@@ -26,15 +26,22 @@ $handler = static function () use ($kernel) {
     }
 };
 
-$totalRequests = 0;
-while (true) {
-    $keepRunning = frankenphp_handle_request($handler);
+if (($_SERVER['SERVER_SOFTWARE'] ?? null) === 'FrankenPHP')
+{
+    $totalRequests = 0;
+    while (true) {
+        $keepRunning = frankenphp_handle_request($handler);
 
-    gc_collect_cycles();
+        gc_collect_cycles();
 
-    if (!$keepRunning) {
-        break;
+        if (!$keepRunning) {
+            break;
+        }
     }
+}
+else
+{
+    $handler();
 }
 
 $kernel->shutdown();

@@ -1,7 +1,7 @@
 services:
     frankenphp-server:
-        image: frankenphp:latest
-        container_name: frankenphp
+        image: component_php:latest
+        container_name: component_php
         ports:
             - '8080:8080'
         volumes:
