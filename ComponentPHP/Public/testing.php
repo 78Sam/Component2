@@ -21,16 +21,23 @@ foreach ($classLoader->getPrefixesPsr4() as $namespace => $paths) {
 /** @var array<string, string> */
 define('PSR4_NAMESPACES', $psr4Namespaces);
 
-// $tester = new TestRunner();
-// $tester->runAllTests();
+$tester = new TestRunner();
+$tester->runAllTests();
 
 // $router = new Router();
 // $router->createSiteMap();
 // print_r($router->siteMapEntries);
 
-class TestTemplate extends AbstractTemplate
-{}
+// class TestTemplate extends AbstractTemplate
+// {
+//     public function __construct()
+//     {
+//         $this->loadFile('test.html');
+//     }
+// }
 
-$x = new TestTemplate();
-
-print_r($x->loadFile('test.html')) . "\n";
+// $x = new TestTemplate();
+// $component = $x->get('test_component');
+// $component->fill('myVar', 'hi there');
+// $component->fill('newVar', 'hi there 2');
+// echo $component->__toString();

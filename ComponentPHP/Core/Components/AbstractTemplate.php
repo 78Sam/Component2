@@ -11,24 +11,54 @@ abstract class AbstractTemplate
     public const string VARIABLE_PATTERN = '/!@\(\s*\$(?<variable_name>[a-zA-Z_]{1}\w*)\s*\)/';
     public const string COMPONENT_PATTERN = '/!@\(\s*component\|(?<component_name>\w+)\s*\)(?<body>.*?)!@\(\s*end\s*\)/s';
 
-    /** @var array<string, array<string, Component>> */
+    /** @var array<string, Component> */
     private array $components = [];
-    /**
-     * @param string $filename Path relative to App/Components
-     * 
-     * @return list<string> The names of the components loaded via this file
-     */
-    // protected function loadFile(string $filename): array
-    public function loadFile(string $filename): array
+
+    /** @var array<string, list<string>> */
+    private array $loadedFiles = [];
+
+    public function get(string $component, ?string $path = null): ?Component
     {
-        $filename = normalisePath($filename);
-        $path = relativeToAbsolutePath("App/Components{$filename}");
-        if (!array_key_exists($path, $this->components)) {
-            $this->components[$path] = $this->parseComponents($path);
+        if ($path !== null) {
+            $component = "{$path}_{$component}";
         }
 
-        // return array_keys($this->components[$path]);
-        return $this->components;
+        $component = $this->components[$component] ?? null;
+        if ($component === null) {
+            return null;
+        }
+
+        return clone $component;
+    }
+
+    /**
+     * @return list<string> The names of the components loaded via this file
+     */
+    public function loadFile(string $path, bool $absolutePath = false): array
+    {
+        if ($absolutePath === false) {
+            $path = relativeToAbsolutePath($path);
+        }
+        $path = normalisePath($path);
+            
+        if (array_key_exists($path, $this->loadedFiles)) {
+            return $this->loadedFiles[$path];
+        }
+
+        $componentNames = [];
+        foreach ($this->parseComponents($path) as $componentName => $component) {
+            if (array_key_exists($componentName, $this->components)) {
+                $componentName = "{$path}_{$componentName}"; // Namespace the component if the same name already exists
+                if (array_key_exists($componentName, $this->components)) {
+                    throw new \Exception("Cannot load component as component with same name already exists '{$componentName}'");
+                }
+            }
+            $componentNames[] = $componentName;
+            $this->components[$componentName] = $component;
+        }
+        $this->loadedFiles[$path] = $componentNames;
+
+        return $componentNames;
     }
 
     /**
@@ -47,11 +77,24 @@ abstract class AbstractTemplate
             return [];
         }
 
+        /** @var array<string, Component> $components */
         $components = [];
         foreach ($componentMatches as $componentMatch) {
+
+            /** @var array<string, string> $sockets */
             $sockets = [];
+
+            /** @var array<string, list<string>> $variableMap */
             $variableMap = [];
+
             $componentBody = $componentMatch['body'];
+            if ($componentBody[0] === "\n") {
+                $componentBody = substr($componentBody, 1);
+            }
+
+            if ($componentBody[-1] === "\n") {
+                $componentBody = substr($componentBody, 0, -1);
+            }
             
             $variableMatches = [];
             preg_match_all(self::VARIABLE_PATTERN, $componentBody, $variableMatches, flags: PREG_SET_ORDER);
